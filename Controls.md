@@ -1,4 +1,4 @@
-Gamepad 1
+## Gamepad 1
 Left Trigger - Claw Close
 Left Bumper - Claw Open
 Right Trigger - Reset Gyro
@@ -10,7 +10,7 @@ X - Low Clip
 
 
 
-Gamepad 2
+## Gamepad 2
 Left Trigger - Platform Forward
 Left Bumper - Platform Backward
 Right Trigger - Climber Down
