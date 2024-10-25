@@ -1,4 +1,11 @@
-# Road Runner Quickstart
+## Into The Deep Code
+Repository for FTC Team 3558
 
-Check out the [docs](https://rr.brott.dev/docs/v1-0/tuning/).
+## Tools
+- Android Studio
+- FTC DashBoard
+- RoadRunner
+- MeepMeep
+- LimeLight
+  
 
