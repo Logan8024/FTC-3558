@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.Auto.RoadRunnerAutos;
+
 import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -28,8 +29,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
-@Autonomous(name = "Specimen2hangleftstart", group = "Autonomous")
-public class Specimen2hangleftstart extends LinearOpMode {
+@Autonomous(name = "RoadRunnerTest", group = "Autonomous")
+public class RoadRunnerTest extends LinearOpMode {
     public class Arm {
         DcMotor arm;
         Servo claw;
@@ -172,17 +173,12 @@ public class Specimen2hangleftstart extends LinearOpMode {
         Actions.runBlocking(
                 new SequentialAction(
                         arm.HookPos(),
-                        Forward.build(),
-                        arm.Hook(),
-                        arm.Pickup(),
-                        MovetoGrab.build(),
+                        claw.Open(),
                         claw.Close(),
-                        arm.HookPos(),
-                        secondhang.build(),
-                        arm.Hook(),
-                        Park.build()
+                        arm.Hook()
                 )
         );
 
     }
 }
+

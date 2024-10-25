@@ -29,11 +29,11 @@ public class Teleop2024V1 extends LinearOpMode{
     ElapsedTime	 runtime = new ElapsedTime();
 
     //declare determinant variables
-    double BeltPower = 5;
+    double BeltPower = 1;
     double WinchPower = .95;
     double WinchAutoPower = .5;
     double ArmPower = .25;
-    int[] ArmPositions = new int[]{0,130,80,65};
+    int[] ArmPositions = new int[]{0,130,90,55};
     //counts per rotation 1,527.793876
     boolean Climbing = false;
 
@@ -82,10 +82,10 @@ public class Teleop2024V1 extends LinearOpMode{
 
         //Set Default Motor Positions
 
-        FrontLeft.setDirection(DcMotor.Direction.REVERSE);
+        FrontLeft.setDirection(DcMotor.Direction.FORWARD);
         FrontRight.setDirection(DcMotor.Direction.FORWARD);
         BackLeft.setDirection(DcMotor.Direction.FORWARD);
-        BackRight.setDirection(DcMotor.Direction.FORWARD);
+        BackRight.setDirection(DcMotor.Direction.REVERSE);
         Winch.setDirection(DcMotor.Direction.REVERSE);
         Arm.setDirection(DcMotor.Direction.REVERSE);
         ClawServo.setPosition(0);
@@ -199,21 +199,25 @@ public class Teleop2024V1 extends LinearOpMode{
             //Arm
 
             if (this.gamepad1.y) {
+                Arm.setPower(.5);
                 Arm.setTargetPosition(ArmPositions[0]);
             }
             else if (this.gamepad1.b) {
+                Arm.setPower(.5);
                 Arm.setTargetPosition(ArmPositions[1]);
             }
             else if (this.gamepad1.a) {
+                Arm.setPower(.5);
                 Arm.setTargetPosition(ArmPositions[2]);
             }
             else if (this.gamepad1.x) {
+                Arm.setPower(.85);
                 Arm.setTargetPosition(ArmPositions[3]);
             }
 
             //Climb Auto by Button
 
-            if (this.gamepad2.start) {
+            /*if (this.gamepad2.start) {
                 Climbing = true;
                 runtime.reset();
                 while (Climbing) {
@@ -231,7 +235,7 @@ public class Teleop2024V1 extends LinearOpMode{
                         }
                     }
                 }
-            }
+            }*/
         }
     }
 }
