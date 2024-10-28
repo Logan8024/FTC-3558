@@ -45,56 +45,75 @@ public class Specimen2hangleftstart extends LinearOpMode {
             arm.setPower(.5);
             claw = HardwareMap.get(Servo.class, "ArmServo");
         }
-
         public class Pickup implements Action {
-            boolean PosReached = false;
+            boolean PosReached = true;
+            public boolean run(@NonNull TelemetryPacket packet) {
+                arm.setPower(.25);
+                arm.setTargetPosition(0);
+                if (arm.getCurrentPosition() < 40) {
+                    PosReached = false;
+                }
+                return PosReached;
+            }
+        }
+        public Action Pickup() {
+            return new Arm.Pickup();
+        }
+        public class MovPickup implements Action {
+            boolean PosReached = true;
 
             public boolean run(@NonNull TelemetryPacket packet) {
-                arm.setPower(.5);
-                arm.setTargetPosition(0);
-                if (arm.getCurrentPosition() == arm.getTargetPosition()) {
-                    PosReached = true;
+                arm.setPower(.25);
+                arm.setTargetPosition(60);
+                if (arm.getCurrentPosition() < 90) {
+                    PosReached = false;
                 }
                 return PosReached;
             }
         }
 
-        public Action Pickup() {
-            return new Pickup();
+        public Action MovPickup() {
+            return new Arm.MovPickup();
         }
 
         public class Hook implements Action {
-            boolean Hooked = false;
+            boolean Hooked = true;
+            boolean PosReached = false;
 
             public boolean run(@NonNull TelemetryPacket packet) {
-                arm.setPower(.5);
-                arm.setTargetPosition(90);
-                if (arm.getCurrentPosition() == arm.getTargetPosition()) {
-                    arm.setPower(.85);
-                    arm.setTargetPosition(50);
+                if (arm.getCurrentPosition() == 0){
+                    arm.setPower(.25);
+                    arm.setTargetPosition(382);
                 }
-                if (arm.getCurrentPosition() < 65) {
+                if (arm.getCurrentPosition() > 372 && arm.getCurrentPosition() < 402) {
+                    arm.setPower(.75);
+                    arm.setTargetPosition(212);
+                    PosReached = true;
+                }
+                if (arm.getCurrentPosition() < 265 && PosReached && Hooked == true) {
                     claw.setPosition(1);
-                    Hooked = true;
+                    if (claw.getPosition() > .8) {
+                        Hooked = false;
+                    }
                 }
                 return Hooked;
             }
         }
         public Action Hook() {
-            return new Hook();
+            return new Arm.Hook();
         }
         public class HookPos implements Action {
-            boolean posreached = false;
+            boolean posreached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
-                arm.setTargetPosition(90);
-                if (arm.getCurrentPosition() == 90) {
-                    posreached = true;
+                arm.setTargetPosition(382);
+                if (arm.getCurrentPosition() > 362 && arm.getCurrentPosition() < 402) {
+                    posreached = false;
                 }
                 return posreached;
             }
         }
         public Action HookPos() {
-            return new HookPos();
+            return new Arm.HookPos();
         }
     }
 
@@ -110,38 +129,35 @@ public class Specimen2hangleftstart extends LinearOpMode {
 
             public boolean run(@NonNull TelemetryPacket packet) {
                 claw.setPosition(1);
-                if (claw.getPosition() == 1) {
-                    Open = true;
-                }
+                Open = false;
                 return Open;
             }
         }
 
         public class Close implements Action {
-            boolean Closed = false;
+            boolean Close = true;
 
             public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(1);
-                if (claw.getPosition() == 1) {
-                    Closed = true;
+                claw.setPosition(.62);
+                if (claw.getPosition() < .8) {
+                    Close = false;
                 }
-                return Closed;
+                return Close;
             }
         }
 
         public Action Open() {
 
-            return new Open();
+            return new Claw.Open();
         }
 
         public Action Close() {
-
-            return new Close();
+            return new Claw.Close();
         }
     }
     @Override
     public void runOpMode() {
-        Pose2d initialPose = new Pose2d(0, -66, Math.toRadians(0));
+        Pose2d initialPose = new Pose2d(0, -66, Math.toRadians(90));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         Claw claw = new Claw(hardwareMap);
         Arm arm = new Arm(hardwareMap);
@@ -149,19 +165,32 @@ public class Specimen2hangleftstart extends LinearOpMode {
         int VisionOutputPosition = 1;
 
         TrajectoryActionBuilder Forward = drive.actionBuilder(initialPose)
-                .strafeTo(new Vector2d(0,-56));
-        TrajectoryActionBuilder MovetoGrab = Forward.fresh()
-                .strafeTo(new Vector2d(0,-62))
-                .turnTo(180)
-                .strafeTo(new Vector2d(48,-62))
+                .strafeTo(new Vector2d(0,-57));
+        TrajectoryActionBuilder MovetoGrab = drive.actionBuilder(new Pose2d(0,-56, Math.toRadians(90)))
+                .waitSeconds(1)
+                .strafeTo(new Vector2d(0,-58))
+                .strafeTo(new Vector2d(28,-58))
+                .turnTo(180);
+        TrajectoryActionBuilder Backup =  drive.actionBuilder(new Pose2d(28, -58, Math.toRadians(270)))
+                .waitSeconds(1)
+                .strafeTo(new Vector2d(28, -56));
+        TrajectoryActionBuilder Grab = drive.actionBuilder(new Pose2d(28,-56, Math.toRadians(270)))
                 .waitSeconds(5)
-                .strafeTo(new Vector2d(48, -66));
-        TrajectoryActionBuilder secondhang = MovetoGrab.fresh()
-                .turnTo(0)
-                .strafeTo(new Vector2d(0,-56));
-        TrajectoryActionBuilder Park = secondhang.fresh()
-                .strafeTo(new Vector2d(65,-60));
-
+                .strafeTo(new Vector2d(28, -57.5));
+        TrajectoryActionBuilder Backup2 =  drive.actionBuilder(new Pose2d(28, -58, Math.toRadians(270)))
+                .waitSeconds(2)
+                .strafeTo(new Vector2d(28, -57));
+        TrajectoryActionBuilder secondhang = drive.actionBuilder(new Pose2d(28,-57, Math.toRadians(90)))
+                .waitSeconds(1)
+                .strafeTo(new Vector2d(28,-58))
+                .strafeTo(new Vector2d(-10,-58))
+                .waitSeconds(1);
+        TrajectoryActionBuilder secondhangforward = drive.actionBuilder(new Pose2d(-10,-58, Math.toRadians(90)))
+                .strafeTo(new Vector2d(-10,-56))
+                .waitSeconds(1);
+        TrajectoryActionBuilder backup3 = drive.actionBuilder(new Pose2d(-10, -56, Math.toRadians(90)))
+                .waitSeconds(1)
+                .strafeTo(new Vector2d(-10, -60));
 
 
 
@@ -174,13 +203,19 @@ public class Specimen2hangleftstart extends LinearOpMode {
                         arm.HookPos(),
                         Forward.build(),
                         arm.Hook(),
-                        arm.Pickup(),
                         MovetoGrab.build(),
+                        Backup.build(),
+                        arm.MovPickup(),
+                        Grab.build(),
+                        arm.Pickup(),
                         claw.Close(),
+                        Backup2.build(),
                         arm.HookPos(),
                         secondhang.build(),
+                        secondhangforward.build(),
                         arm.Hook(),
-                        Park.build()
+                        backup3.build()
+
                 )
         );
 

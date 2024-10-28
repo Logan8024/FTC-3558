@@ -1,41 +1,64 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
+
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@TeleOp(name="Teleop 2024 V1", group="Linear OpMode")
+import java.util.List;
 
+
+@TeleOp(name="Teleop 2024 V1", group="Linear OpMode")
 public class Teleop2024V1 extends LinearOpMode{
 
     //declare motor values
-    DcMotor FrontLeft = null;
-    DcMotor FrontRight = null;
-    DcMotor BackLeft = null;
-    DcMotor BackRight = null;
-    Servo ClawServo = null;
-    CRServo BeltServo = null;
+    DcMotor FrontLeft;
+    DcMotor FrontRight;
+    DcMotor BackLeft;
+    DcMotor BackRight;
+    CRServo ClawServo1;
+    CRServo ClawServo2;
+    Servo ClawRotation;
+    CRServo BeltServo;
     DcMotor Winch;
+    DcMotor WinchHook;
     DcMotor Arm;
     IMU imu;
+    Limelight3A Limelight;
     ElapsedTime	 runtime = new ElapsedTime();
 
     //declare determinant variables
+    Boolean ClawOn = false;
     double BeltPower = 1;
     double WinchPower = .95;
-    double WinchAutoPower = .5;
     double ArmPower = .25;
     int[] ArmPositions = new int[]{0,130,90,55};
     //counts per rotation 1,527.793876
-    boolean Climbing = false;
+
+    //Limelight Math Variables
+    public LLResultTypes.ColorResult Result;
+    List<List<Double>> CornerList;
+    List<Double> Hypotenuse;
+    List<Double> SideX;
+    List<Double> SideY;
+    int SmallestSide;
+    double Rotation;
+
+    public void SetClawPower (int Power) {
+        ClawServo1.setPower(Power);
+        ClawServo2.setPower(Power);
+    }
+
 
     public void runOpMode() {
 
@@ -49,9 +72,15 @@ public class Teleop2024V1 extends LinearOpMode{
         BackRight = hardwareMap.get(DcMotor.class, "rightBack");
         BackLeft = hardwareMap.get(DcMotor.class, "leftBack");
         Winch = hardwareMap.get(DcMotor.class, "Winch");
+        WinchHook = hardwareMap.get(DcMotor.class, "WinchHook");
+
+
         Arm = hardwareMap.get(DcMotorEx.class, "Arm");
-        ClawServo = hardwareMap.get(Servo.class, "ArmServo");
+        ClawServo1 = hardwareMap.get(CRServo.class, "ClawServo1");
+        ClawServo2 = hardwareMap.get(CRServo.class, "ClawServo2");
+        ClawRotation = hardwareMap.get(Servo.class, "ClawRotation");
         BeltServo = hardwareMap.get(CRServo.class, "BeltServo");
+        Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 
         //Gyro
         imu = hardwareMap.get(IMU.class, "imu");
@@ -59,9 +88,12 @@ public class Teleop2024V1 extends LinearOpMode{
         IMU.Parameters IMUparameters;
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
+                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
 
         imu.initialize(parameters);
+
+        //Limelight settings
+        Limelight.pipelineSwitch(2);
 
         //arm positions converted from degree to counts per rotation calculated
 
@@ -76,23 +108,7 @@ public class Teleop2024V1 extends LinearOpMode{
         double LeftStrafePower;
         double RightStrafePower;
 
-        //Wait For Game To Start
-
-        waitForStart();
-
-        //Set Default Motor Positions
-
-        FrontLeft.setDirection(DcMotor.Direction.FORWARD);
-        FrontRight.setDirection(DcMotor.Direction.FORWARD);
-        BackLeft.setDirection(DcMotor.Direction.FORWARD);
-        BackRight.setDirection(DcMotor.Direction.REVERSE);
-        Winch.setDirection(DcMotor.Direction.REVERSE);
-        Arm.setDirection(DcMotor.Direction.REVERSE);
-        ClawServo.setPosition(0);
-        BeltServo.setPower(0);
-
         //Arm Encoder Values
-
         Arm.setTargetPosition(0);
         Arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -100,9 +116,28 @@ public class Teleop2024V1 extends LinearOpMode{
         Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Arm.setPower(ArmPower);
 
+        //Wait For Game To Start
+
+        waitForStart();
+
+        //Set Default Motor Positions
+        FrontLeft.setDirection(DcMotor.Direction.FORWARD);
+        FrontRight.setDirection(DcMotor.Direction.FORWARD);
+        BackLeft.setDirection(DcMotor.Direction.FORWARD);
+        BackRight.setDirection(DcMotor.Direction.REVERSE);
+        Winch.setDirection(DcMotor.Direction.REVERSE);
+        Arm.setDirection(DcMotor.Direction.REVERSE);
+        BeltServo.setPower(0);
+
+
+
         // run until the end of the match (driver presses STOP)
 
         while (opModeIsActive()) {
+
+            //Start Limelight && get Data
+
+
 
             //Joy Stick Values for Driving
 
@@ -124,6 +159,7 @@ public class Teleop2024V1 extends LinearOpMode{
                 FrontRight.setPower(RightPower);
                 BackLeft.setPower(LeftPower);
                 BackRight.setPower(RightPower);
+
                 if(Math.abs(strafe) > 0.1){
                     FrontLeft.setPower(LeftStrafePower);
                     FrontRight.setPower(-RightStrafePower);
@@ -152,6 +188,23 @@ public class Teleop2024V1 extends LinearOpMode{
             }
             //Game Controls
 
+            //Arm Encoder Reset
+            if (this.gamepad2.a) {
+                runtime.reset();
+                Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                Arm.setDirection(DcMotor.Direction.REVERSE);
+                while (runtime.seconds() < 3) {
+                    //wait
+                }
+                Arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                Arm.setTargetPosition(0);
+                Arm.setPower(ArmPower);
+
+            }
+
             //Gyroscope
 
             if (this.gamepad1.right_trigger == 1) {
@@ -162,14 +215,24 @@ public class Teleop2024V1 extends LinearOpMode{
             }
 
             //Toggle Button for Claw
-            if (this.gamepad1.left_bumper) {
-                //Close
-                ClawServo.setPosition(0.62);
-            }
+
             if (this.gamepad1.left_trigger == 1) {
-                //Open
-                ClawServo.setPosition(1);
+                if (ClawOn = true) {
+                    ClawOn = false;
+                    SetClawPower(0);
+                }
+                else {
+                    ClawOn = true;
+                    SetClawPower(1);
+                }
             }
+            if (this.gamepad1.left_bumper) {
+                ClawRotation.setPosition((Rotation/360));
+            }
+
+
+
+
 
             //Control for Belt Servo
             if (this.gamepad2.left_trigger == 1) {
@@ -199,15 +262,15 @@ public class Teleop2024V1 extends LinearOpMode{
             //Arm
 
             if (this.gamepad1.y) {
-                Arm.setPower(.5);
+                Arm.setPower(.25);
                 Arm.setTargetPosition(ArmPositions[0]);
             }
             else if (this.gamepad1.b) {
-                Arm.setPower(.5);
+                Arm.setPower(.25);
                 Arm.setTargetPosition(ArmPositions[1]);
             }
             else if (this.gamepad1.a) {
-                Arm.setPower(.5);
+                Arm.setPower(.25);
                 Arm.setTargetPosition(ArmPositions[2]);
             }
             else if (this.gamepad1.x) {
@@ -215,27 +278,55 @@ public class Teleop2024V1 extends LinearOpMode{
                 Arm.setTargetPosition(ArmPositions[3]);
             }
 
-            //Climb Auto by Button
+            //Limelight Math
 
-            /*if (this.gamepad2.start) {
-                Climbing = true;
-                runtime.reset();
-                while (Climbing) {
-                    if (runtime.seconds() > 0) {
-                        Winch.setDirection(DcMotor.Direction.FORWARD);
-                        Winch.setPower(WinchAutoPower);
-                        if (runtime.seconds() > 2) {
-                            BeltServo.setPower(BeltPower);
-                            if (runtime.seconds() > 6) {
-                                Winch.setPower(0);
-                                BeltServo.setPower(0);
-                                Climbing = false;
-                                runtime.reset();
-                            }
-                        }
+            Limelight = hardwareMap.get(Limelight3A.class, "limelight");
+            Limelight.pipelineSwitch(2);
+            Limelight.start();
+            CornerList = Result.getTargetCorners();
+
+            //Limelight Math
+            for (int i = 0; i<4; i++) {
+                double X1;
+                double Y1;
+                double X2;
+                double Y2;
+                if (i == 3) {
+                    X1 = CornerList.get(i).get(0);
+                    Y1 = CornerList.get(i).get(1);
+                    X2 = CornerList.get(0).get(0);
+                    Y2 = CornerList.get(0).get(1);
+                }
+                else {
+                    X1 = CornerList.get(i).get(0);
+                    Y1 = CornerList.get(i).get(1);
+                    X2 = CornerList.get(i + 1).get(0);
+                    Y2 = CornerList.get(i + 1).get(1);
+                }
+                Double Hyp = Math.hypot((X2-X1), (Y2 - Y1));
+                Hypotenuse.set(i, Hyp);
+                SideX.set(i, (X2-X1));
+                SideY.set(i, (Y2-Y1));
+            }
+            for (int i = 0; i < 4; i++) {
+                if (i == 3) {
+                    if (Hypotenuse.get(i) > Hypotenuse.get(0)) {
+                        SmallestSide = i+1;
+                    }
+                    else {
+                        SmallestSide = i;
                     }
                 }
-            }*/
+                else {
+                    if (Hypotenuse.get(i) > Hypotenuse.get(i+1)) {
+                        SmallestSide = i+1;
+                    }
+                    else
+                        SmallestSide = i;
+                }
+            }
+
+            Rotation = Math.round(Math.atan2(SideY.get(SmallestSide), SideX.get(SmallestSide)));
         }
     }
 }

@@ -48,13 +48,13 @@ public class RoadRunnerTest extends LinearOpMode {
         }
 
         public class Pickup implements Action {
-            boolean PosReached = false;
+            boolean PosReached = true;
 
             public boolean run(@NonNull TelemetryPacket packet) {
                 arm.setPower(.5);
                 arm.setTargetPosition(0);
                 if (arm.getCurrentPosition() == arm.getTargetPosition()) {
-                    PosReached = true;
+                    PosReached = false;
                 }
                 return PosReached;
             }
@@ -65,18 +65,24 @@ public class RoadRunnerTest extends LinearOpMode {
         }
 
         public class Hook implements Action {
-            boolean Hooked = false;
+            boolean Hooked = true;
+            boolean PosReached = false;
 
             public boolean run(@NonNull TelemetryPacket packet) {
-                arm.setPower(.5);
-                arm.setTargetPosition(90);
-                if (arm.getCurrentPosition() == arm.getTargetPosition()) {
-                    arm.setPower(.85);
-                    arm.setTargetPosition(50);
+                if (arm.getCurrentPosition() == 0){
+                    arm.setPower(.25);
+                    arm.setTargetPosition(382);
                 }
-                if (arm.getCurrentPosition() < 65) {
+                if (arm.getCurrentPosition() > 372 && arm.getCurrentPosition() < 402) {
+                    arm.setPower(.75);
+                    arm.setTargetPosition(212);
+                    PosReached = true;
+                }
+                if (arm.getCurrentPosition() < 265 && PosReached) {
                     claw.setPosition(1);
-                    Hooked = true;
+                    if (claw.getPosition() < .8) {
+                        Hooked = false;
+                    }
                 }
                 return Hooked;
             }
@@ -85,11 +91,11 @@ public class RoadRunnerTest extends LinearOpMode {
             return new Hook();
         }
         public class HookPos implements Action {
-            boolean posreached = false;
+            boolean posreached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
-                arm.setTargetPosition(90);
-                if (arm.getCurrentPosition() == 90) {
-                    posreached = true;
+                arm.setTargetPosition(382);
+                if (arm.getCurrentPosition() > 362 && arm.getCurrentPosition() < 402) {
+                    posreached = false;
                 }
                 return posreached;
             }
@@ -111,22 +117,18 @@ public class RoadRunnerTest extends LinearOpMode {
 
             public boolean run(@NonNull TelemetryPacket packet) {
                 claw.setPosition(1);
-                if (claw.getPosition() == 1) {
-                    Open = true;
-                }
+                Open = false;
                 return Open;
             }
         }
 
         public class Close implements Action {
-            boolean Closed = false;
+            boolean Close = true;
 
             public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(1);
-                if (claw.getPosition() == 1) {
-                    Closed = true;
-                }
-                return Closed;
+                claw.setPosition(.62);
+                Close = false;
+                return Close;
             }
         }
 
@@ -136,7 +138,6 @@ public class RoadRunnerTest extends LinearOpMode {
         }
 
         public Action Close() {
-
             return new Close();
         }
     }
@@ -172,8 +173,6 @@ public class RoadRunnerTest extends LinearOpMode {
 
         Actions.runBlocking(
                 new SequentialAction(
-                        arm.HookPos(),
-                        claw.Open(),
                         claw.Close(),
                         arm.Hook()
                 )

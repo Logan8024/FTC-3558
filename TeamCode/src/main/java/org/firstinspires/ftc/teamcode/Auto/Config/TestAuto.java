@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 
 //Change to File Name
-@Autonomous(name = "TestAuto")
+//@Autonomous(name = "TestAuto")
 //Change to File Name
 public class TestAuto extends LinearOpMode {
     @Override
