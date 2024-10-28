@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
 
+
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -55,7 +56,7 @@ public class Teleop2024V1 extends LinearOpMode{
 
     //Limelight Math Variables
 
-    public LLResultTypes.ColorResult Result;
+    List<LLResultTypes.ColorResult> CResult = Limelight.getLatestResult().getColorResults();
     List<List<Double>> CornerList;
     List<Double> Hypotenuse;
     List<Double> SideX;
@@ -68,7 +69,7 @@ public class Teleop2024V1 extends LinearOpMode{
     }
 
     public double CalculateLimelightAngle () {
-        CornerList = Result.getTargetCorners();
+    CornerList = CResult.get(0).getTargetCorners();
 
         //Limelight Math
         for (int i = 0; i<4; i++) {
@@ -134,12 +135,11 @@ public class Teleop2024V1 extends LinearOpMode{
         ClawServo2 = hardwareMap.get(CRServo.class, "ClawServo2");
         ClawRotation = hardwareMap.get(Servo.class, "ClawRotation");
         BeltServo = hardwareMap.get(CRServo.class, "BeltServo");
-        Limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+        Limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
         //Gyro
         imu = hardwareMap.get(IMU.class, "imu");
 
-        IMU.Parameters IMUparameters;
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
                 RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
@@ -188,10 +188,6 @@ public class Teleop2024V1 extends LinearOpMode{
         // run until the end of the match (driver presses STOP)
 
         while (opModeIsActive()) {
-
-            //Start Limelight && get Data
-
-
             //Joy Stick Values for Driving
 
             double drive = -gamepad1.left_stick_y;
@@ -269,21 +265,23 @@ public class Teleop2024V1 extends LinearOpMode{
 
             if (this.gamepad1.left_trigger == 1) {
                 if (ClawOn = true) {
-                    ClawOn = false;
                     SetClawPower(0);
+                    ClawOn = false;
                 } else {
-                    ClawOn = true;
                     SetClawPower(1);
-                    ClawRotation.setPosition((CalculateLimelightAngle() / 360));
+                    ClawOn = true;
+                    //ClawRotation.setPosition((CalculateLimelightAngle() / 360));
+                    telemetry.addData("Piece Rotation", CalculateLimelightAngle());
+                    telemetry.update();
                 }
             }
             if (this.gamepad1.left_bumper) {
                 if (ClawOn = true) {
-                    ClawOn = false;
                     SetClawPower(0);
+                    ClawOn = false;
                 } else {
-                    ClawOn = true;
                     SetClawPower(-1);
+                    ClawOn = true;
                 }
             }
 
@@ -342,7 +340,6 @@ public class Teleop2024V1 extends LinearOpMode{
             Limelight = hardwareMap.get(Limelight3A.class, "limelight");
             Limelight.pipelineSwitch(2);
             Limelight.start();
-            CornerList = Result.getTargetCorners();
 
         }
     }
