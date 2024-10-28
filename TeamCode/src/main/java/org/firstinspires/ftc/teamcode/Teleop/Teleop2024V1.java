@@ -21,7 +21,8 @@ import java.util.List;
 @TeleOp(name="Teleop 2024 V1", group="Linear OpMode")
 public class Teleop2024V1 extends LinearOpMode{
 
-    //declare motor values
+    //Motors
+
     DcMotor FrontLeft;
     DcMotor FrontRight;
     DcMotor BackLeft;
@@ -33,11 +34,18 @@ public class Teleop2024V1 extends LinearOpMode{
     DcMotor Winch;
     DcMotor WinchHook;
     DcMotor Arm;
+
+    //Data
+
     IMU imu;
     Limelight3A Limelight;
+
+    //Time
+
     ElapsedTime	 runtime = new ElapsedTime();
 
-    //declare determinant variables
+    //determinant variables
+
     Boolean ClawOn = false;
     double BeltPower = 1;
     double WinchPower = .95;
@@ -46,17 +54,63 @@ public class Teleop2024V1 extends LinearOpMode{
     //counts per rotation 1,527.793876
 
     //Limelight Math Variables
+
     public LLResultTypes.ColorResult Result;
     List<List<Double>> CornerList;
     List<Double> Hypotenuse;
     List<Double> SideX;
     List<Double> SideY;
     int SmallestSide;
-    double Rotation;
 
     public void SetClawPower (int Power) {
         ClawServo1.setPower(Power);
         ClawServo2.setPower(Power);
+    }
+
+    public double CalculateLimelightAngle () {
+        CornerList = Result.getTargetCorners();
+
+        //Limelight Math
+        for (int i = 0; i<4; i++) {
+            double X1;
+            double Y1;
+            double X2;
+            double Y2;
+            if (i == 3) {
+                X1 = CornerList.get(i).get(0);
+                Y1 = CornerList.get(i).get(1);
+                X2 = CornerList.get(0).get(0);
+                Y2 = CornerList.get(0).get(1);
+            }
+            else {
+                X1 = CornerList.get(i).get(0);
+                Y1 = CornerList.get(i).get(1);
+                X2 = CornerList.get(i + 1).get(0);
+                Y2 = CornerList.get(i + 1).get(1);
+            }
+            Double Hyp = Math.hypot((X2-X1), (Y2 - Y1));
+            Hypotenuse.set(i, Hyp);
+            SideX.set(i, (X2-X1));
+            SideY.set(i, (Y2-Y1));
+        }
+        for (int i = 0; i < 4; i++) {
+            if (i == 3) {
+                if (Hypotenuse.get(i) > Hypotenuse.get(0)) {
+                    SmallestSide = i+1;
+                }
+                else {
+                    SmallestSide = i;
+                }
+            }
+            else {
+                if (Hypotenuse.get(i) > Hypotenuse.get(i+1)) {
+                    SmallestSide = i+1;
+                }
+                else
+                    SmallestSide = i;
+            }
+        }
+        return Math.round(Math.atan2(SideY.get(SmallestSide), SideX.get(SmallestSide)));
     }
 
 
@@ -138,7 +192,6 @@ public class Teleop2024V1 extends LinearOpMode{
             //Start Limelight && get Data
 
 
-
             //Joy Stick Values for Driving
 
             double drive = -gamepad1.left_stick_y;
@@ -147,11 +200,10 @@ public class Teleop2024V1 extends LinearOpMode{
 
             //Field Centric Controls
             if (this.gamepad1.right_bumper) {
-                LeftPower	= Range.clip(drive + turn, -1.0, 1.0) *.75;
-                RightPower   = Range.clip(drive - turn, -1.0, 1.0) *.75;
-                LeftStrafePower = strafe*.75;
-                RightStrafePower = strafe*.75;
-
+                LeftPower = Range.clip(drive + turn, -1.0, 1.0) * .75;
+                RightPower = Range.clip(drive - turn, -1.0, 1.0) * .75;
+                LeftStrafePower = strafe * .75;
+                RightStrafePower = strafe * .75;
 
 
                 // Send calculated power to wheels
@@ -160,14 +212,13 @@ public class Teleop2024V1 extends LinearOpMode{
                 BackLeft.setPower(LeftPower);
                 BackRight.setPower(RightPower);
 
-                if(Math.abs(strafe) > 0.1){
+                if (Math.abs(strafe) > 0.1) {
                     FrontLeft.setPower(LeftStrafePower);
                     FrontRight.setPower(-RightStrafePower);
                     BackLeft.setPower(-LeftStrafePower);
                     BackRight.setPower(RightStrafePower);
                 }
-            }
-            else {
+            } else {
                 double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
                 double rotX = strafe * Math.cos(-botHeading) - drive * Math.sin(-botHeading);
@@ -220,28 +271,29 @@ public class Teleop2024V1 extends LinearOpMode{
                 if (ClawOn = true) {
                     ClawOn = false;
                     SetClawPower(0);
-                }
-                else {
+                } else {
                     ClawOn = true;
                     SetClawPower(1);
+                    ClawRotation.setPosition((CalculateLimelightAngle() / 360));
                 }
             }
             if (this.gamepad1.left_bumper) {
-                ClawRotation.setPosition((Rotation/360));
+                if (ClawOn = true) {
+                    ClawOn = false;
+                    SetClawPower(0);
+                } else {
+                    ClawOn = true;
+                    SetClawPower(-1);
+                }
             }
-
-
-
 
 
             //Control for Belt Servo
             if (this.gamepad2.left_trigger == 1) {
                 BeltServo.setPower(BeltPower);
-            }
-            else if (this.gamepad2.left_bumper) {
+            } else if (this.gamepad2.left_bumper) {
                 BeltServo.setPower(-BeltPower);
-            }
-            else {
+            } else {
                 BeltServo.setPower(0);
             }
 
@@ -250,13 +302,23 @@ public class Teleop2024V1 extends LinearOpMode{
             if (this.gamepad2.right_trigger == 1) {
                 Winch.setDirection(DcMotor.Direction.FORWARD);
                 Winch.setPower(WinchPower);
-            }
-            else if (this.gamepad2.right_bumper) {
+            } else if (this.gamepad2.right_bumper) {
                 Winch.setDirection(DcMotor.Direction.REVERSE);
                 Winch.setPower(WinchPower);
-            }
-            else {
+            } else {
                 Winch.setPower(0);
+            }
+
+            //Hook Winch
+
+            if (this.gamepad2.dpad_down) {
+                WinchHook.setDirection(DcMotor.Direction.FORWARD);
+                WinchHook.setPower(WinchPower);
+            } else if (this.gamepad2.dpad_up) {
+                WinchHook.setDirection(DcMotor.Direction.REVERSE);
+                WinchHook.setPower(WinchPower);
+            } else {
+                WinchHook.setPower(0);
             }
 
             //Arm
@@ -264,16 +326,13 @@ public class Teleop2024V1 extends LinearOpMode{
             if (this.gamepad1.y) {
                 Arm.setPower(.25);
                 Arm.setTargetPosition(ArmPositions[0]);
-            }
-            else if (this.gamepad1.b) {
+            } else if (this.gamepad1.b) {
                 Arm.setPower(.25);
                 Arm.setTargetPosition(ArmPositions[1]);
-            }
-            else if (this.gamepad1.a) {
+            } else if (this.gamepad1.a) {
                 Arm.setPower(.25);
                 Arm.setTargetPosition(ArmPositions[2]);
-            }
-            else if (this.gamepad1.x) {
+            } else if (this.gamepad1.x) {
                 Arm.setPower(.85);
                 Arm.setTargetPosition(ArmPositions[3]);
             }
@@ -285,48 +344,6 @@ public class Teleop2024V1 extends LinearOpMode{
             Limelight.start();
             CornerList = Result.getTargetCorners();
 
-            //Limelight Math
-            for (int i = 0; i<4; i++) {
-                double X1;
-                double Y1;
-                double X2;
-                double Y2;
-                if (i == 3) {
-                    X1 = CornerList.get(i).get(0);
-                    Y1 = CornerList.get(i).get(1);
-                    X2 = CornerList.get(0).get(0);
-                    Y2 = CornerList.get(0).get(1);
-                }
-                else {
-                    X1 = CornerList.get(i).get(0);
-                    Y1 = CornerList.get(i).get(1);
-                    X2 = CornerList.get(i + 1).get(0);
-                    Y2 = CornerList.get(i + 1).get(1);
-                }
-                Double Hyp = Math.hypot((X2-X1), (Y2 - Y1));
-                Hypotenuse.set(i, Hyp);
-                SideX.set(i, (X2-X1));
-                SideY.set(i, (Y2-Y1));
-            }
-            for (int i = 0; i < 4; i++) {
-                if (i == 3) {
-                    if (Hypotenuse.get(i) > Hypotenuse.get(0)) {
-                        SmallestSide = i+1;
-                    }
-                    else {
-                        SmallestSide = i;
-                    }
-                }
-                else {
-                    if (Hypotenuse.get(i) > Hypotenuse.get(i+1)) {
-                        SmallestSide = i+1;
-                    }
-                    else
-                        SmallestSide = i;
-                }
-            }
-
-            Rotation = Math.round(Math.atan2(SideY.get(SmallestSide), SideX.get(SmallestSide)));
         }
     }
 }
