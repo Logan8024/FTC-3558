@@ -11,27 +11,18 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.CRServo;
+
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-@Autonomous(name = "RoadRunnerTest", group = "Autonomous")
-public class RoadRunnerTest extends LinearOpMode {
-    public class Arm {
+@Autonomous(name = "RoadRunnerActions")
+public class RoadRunnerActions extends LinearOpMode {
+    public static class Arm {
         DcMotor arm;
         Servo claw;
 
@@ -45,42 +36,70 @@ public class RoadRunnerTest extends LinearOpMode {
             arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             arm.setPower(.5);
             claw = HardwareMap.get(Servo.class, "ArmServo");
-        }
 
+        }
         public class Pickup implements Action {
+            boolean PosReached = true;
+            public boolean run(@NonNull TelemetryPacket packet) {
+                arm.setPower(.25);
+                arm.setTargetPosition(0);
+                if (arm.getCurrentPosition() < 40) {
+                    PosReached = false;
+                }
+                return PosReached;
+            }
+        }
+        public Action Pickup() {
+            return new Arm.Pickup();
+        }
+        public class MovPickup implements Action {
             boolean PosReached = true;
 
             public boolean run(@NonNull TelemetryPacket packet) {
-                arm.setPower(.5);
-                arm.setTargetPosition(0);
-                if (arm.getCurrentPosition() == arm.getTargetPosition()) {
+                arm.setPower(.25);
+                arm.setTargetPosition(60);
+                if (arm.getCurrentPosition() < 90) {
                     PosReached = false;
                 }
                 return PosReached;
             }
         }
 
-        public Action Pickup() {
-            return new Pickup();
+        public Action MovPickup() {
+            return new Arm.MovPickup();
         }
 
         public class Hook implements Action {
             boolean Hooked = true;
-            boolean PosReached = false;
+            boolean FirstPosReached = false;
+            boolean FailSafe = false;
+            ElapsedTime runtime = new ElapsedTime();
 
             public boolean run(@NonNull TelemetryPacket packet) {
-                if (arm.getCurrentPosition() == 0){
-                    arm.setPower(.25);
+                runtime.reset();
+                if (!FailSafe) {
+                    if (arm.getCurrentPosition() == 0) {
+                        arm.setPower(.25);
+                        arm.setTargetPosition(382);
+                    }
+                    if (arm.getCurrentPosition() > 372 && arm.getCurrentPosition() < 402) {
+                        arm.setPower(.75);
+                        arm.setTargetPosition(212);
+                        FirstPosReached = true;
+                    }
+                    if (arm.getCurrentPosition() < 265 && FirstPosReached && Hooked) {
+                        claw.setPosition(1);
+                        if (claw.getPosition() > .8) {
+                            Hooked = false;
+                        }
+                    }
+                }
+                if (runtime.seconds() > 10 && FirstPosReached) {
+                    FailSafe = true;
+                }
+                if (FailSafe) {
                     arm.setTargetPosition(382);
-                }
-                if (arm.getCurrentPosition() > 372 && arm.getCurrentPosition() < 402) {
-                    arm.setPower(.75);
-                    arm.setTargetPosition(212);
-                    PosReached = true;
-                }
-                if (arm.getCurrentPosition() < 265 && PosReached) {
-                    claw.setPosition(1);
-                    if (claw.getPosition() < .8) {
+                    if (arm.getCurrentPosition() > 320) {
                         Hooked = false;
                     }
                 }
@@ -88,7 +107,7 @@ public class RoadRunnerTest extends LinearOpMode {
             }
         }
         public Action Hook() {
-            return new Hook();
+            return new Arm.Hook();
         }
         public class HookPos implements Action {
             boolean posreached = true;
@@ -101,11 +120,11 @@ public class RoadRunnerTest extends LinearOpMode {
             }
         }
         public Action HookPos() {
-            return new HookPos();
+            return new Arm.HookPos();
         }
     }
 
-    public class Claw {
+    public static class Claw {
         private Servo claw;
 
         public Claw(HardwareMap hardwareMap) {
@@ -127,57 +146,24 @@ public class RoadRunnerTest extends LinearOpMode {
 
             public boolean run(@NonNull TelemetryPacket packet) {
                 claw.setPosition(.62);
-                Close = false;
+                if (claw.getPosition() < .8) {
+                    Close = false;
+                }
                 return Close;
             }
         }
 
         public Action Open() {
 
-            return new Open();
+            return new Claw.Open();
         }
 
         public Action Close() {
-            return new Close();
+            return new Claw.Close();
         }
     }
     @Override
     public void runOpMode() {
-        Pose2d initialPose = new Pose2d(0, -66, Math.toRadians(0));
-        MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
-        Claw claw = new Claw(hardwareMap);
-        Arm arm = new Arm(hardwareMap);
-
-        int VisionOutputPosition = 1;
-
-        TrajectoryActionBuilder Forward = drive.actionBuilder(initialPose)
-                .strafeTo(new Vector2d(0,-56));
-        TrajectoryActionBuilder MovetoGrab = Forward.fresh()
-                .strafeTo(new Vector2d(0,-62))
-                .turnTo(180)
-                .strafeTo(new Vector2d(48,-62))
-                .waitSeconds(5)
-                .strafeTo(new Vector2d(48, -66));
-        TrajectoryActionBuilder secondhang = MovetoGrab.fresh()
-                .turnTo(0)
-                .strafeTo(new Vector2d(0,-56));
-        TrajectoryActionBuilder Park = secondhang.fresh()
-                .strafeTo(new Vector2d(65,-60));
-
-
-
-
-
-        waitForStart();
-        if (isStopRequested()) return;
-
-        Actions.runBlocking(
-                new SequentialAction(
-                        claw.Close(),
-                        arm.Hook()
-                )
-        );
-
     }
 }
 
