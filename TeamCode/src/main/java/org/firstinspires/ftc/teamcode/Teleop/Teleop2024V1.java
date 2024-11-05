@@ -64,8 +64,8 @@ public class Teleop2024V1 extends LinearOpMode{
     }
 
     public double CalculateLimelightAngle () {
-        double[] pythonOutputs = Limelight.getLatestResult().getPythonOutput();
-        if (pythonOutputs != null) {
+        if (Limelight.getLatestResult() != null) {
+            double[] pythonOutputs = Limelight.getLatestResult().getPythonOutput();
             Angle = pythonOutputs[0];
         }
         else {
@@ -78,7 +78,7 @@ public class Teleop2024V1 extends LinearOpMode{
     public void runOpMode() {
 
         telemetry.addData("Status", "Initialized");
-        telemetry.addData("Piece Rotation", Angle);
+        telemetry.addData("Piece Rotation", CalculateLimelightAngle());
         telemetry.update();
 
         //Hardware Maps
