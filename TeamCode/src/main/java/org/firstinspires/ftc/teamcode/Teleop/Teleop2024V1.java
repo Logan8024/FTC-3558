@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.Teleop;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,10 +13,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 
 @TeleOp(name="Teleop 2024 V1", group="Linear OpMode")
@@ -51,35 +48,22 @@ public class Teleop2024V1 extends LinearOpMode{
     double WinchPower = .95;
     double ArmPower = .25;
     int[] ArmPositions = new int[]{0,130,90,55};
+    int Switch = 0;
     //counts per rotation 1,527.793876
 
     //Limelight Math Variables
     double Angle;
-    int SmallestSide;
 
 
     public void SetClawPower (int Power) {
         ClawServo1.setPower(-Power);
         ClawServo2.setPower(Power);
     }
-
-    public double CalculateLimelightAngle () {
-        if (Limelight.getLatestResult() != null) {
-            double[] pythonOutputs = Limelight.getLatestResult().getPythonOutput();
-            Angle = pythonOutputs[0];
-        }
-        else {
-            Angle = 0;
-        }
-    return Angle;
-    }
-
-
     public void runOpMode() {
 
         telemetry.addData("Status", "Initialized");
-        telemetry.addData("Piece Rotation", CalculateLimelightAngle());
         telemetry.update();
+
 
         //Hardware Maps
 
@@ -108,10 +92,8 @@ public class Teleop2024V1 extends LinearOpMode{
         imu.initialize(parameters);
 
         //Limelight settings
-        Limelight.pipelineSwitch(2);
 
         //arm positions converted from degree to counts per rotation calculated
-
         for (int i = 0; i < 4; i++) {
             ArmPositions[i] = (int)Math.round((1527.793876 / 360) * ArmPositions[i]);
         }
@@ -136,6 +118,7 @@ public class Teleop2024V1 extends LinearOpMode{
         waitForStart();
 
         //Limelight
+        Limelight.setPollRateHz(10); // This sets how often we ask Limelight for data (100 times per second)
         Limelight.pipelineSwitch(2);
         Limelight.start();
 
@@ -154,9 +137,28 @@ public class Teleop2024V1 extends LinearOpMode{
         // run until the end of the match (driver presses STOP)
 
         while (opModeIsActive()) {
+            Limelight.start();
+
+
+
+            LLResult Result = Limelight.getLatestResult();
+            if (Result != null) {
+                double[] pythonOutputs = Result.getPythonOutput();
+                if (pythonOutputs != null && pythonOutputs.length > 0) {
+                    telemetry.addData("Python Output Length:", pythonOutputs.length);
+                    telemetry.addData("Raw Angle from Python Output:", pythonOutputs[0]);
+                    Angle = pythonOutputs[0];
+                    telemetry.addData("Claw Rotation:", Angle/180);
+                } else {
+                    Angle = 16; // Or some other default to indicate no target detected
+                    telemetry.addData("Error:", "No angle data received");
+                }
+                telemetry.update();
+
+            }
+
+
             //Joy Stick Values for Driving
-            telemetry.addData("Piece Rotation", Angle);
-            telemetry.update();
 
             double drive = -gamepad1.left_stick_y;
             double turn = gamepad1.right_stick_x;
@@ -209,7 +211,7 @@ public class Teleop2024V1 extends LinearOpMode{
                 Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 Arm.setDirection(DcMotor.Direction.REVERSE);
                 while (runtime.seconds() < 3) {
-                    //wait
+
                 }
                 Arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -232,26 +234,41 @@ public class Teleop2024V1 extends LinearOpMode{
             //Toggle Button for Claw
 
             if (this.gamepad1.left_trigger > .5) {
-                if (ClawOn) {
+
+                if (Switch == 0 && ClawOn) {
                     SetClawPower(0);
+                    Switch = 1;
                     ClawOn = false;
-                } else {
+
+                }
+                else if (Switch == 0 && !ClawOn){
                     SetClawPower(1);
+                    ClawRotation.setPosition((Angle / 180));
                     ClawOn = true;
-                    ClawRotation.setPosition((CalculateLimelightAngle() / 180));
+                    Switch = 1;
+
 
                 }
 
             }
+            else {
+                Switch = 0;
+            }
             if (this.gamepad1.left_bumper) {
-                if (ClawOn) {
+                if (Switch == 0 && ClawOn) {
                     SetClawPower(0);
                     ClawOn = false;
                     ClawRotation.setPosition(0);
-                } else {
+                    Switch = 1;
+                }
+                else if (Switch == 0 && !ClawOn) {
                     SetClawPower(-1);
                     ClawOn = true;
+                    Switch = 1;
                 }
+            }
+            else {
+                Switch = 0;
             }
 
 
