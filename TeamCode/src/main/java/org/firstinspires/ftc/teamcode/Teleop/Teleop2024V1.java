@@ -251,7 +251,7 @@ public class Teleop2024V1 extends LinearOpMode{
                 }
 
             }
-            else {
+            else if (this.gamepad1.left_trigger < .5) {
                 Switch = 0;
             }
             if (this.gamepad1.left_bumper) {
@@ -267,7 +267,7 @@ public class Teleop2024V1 extends LinearOpMode{
                     Switch = 1;
                 }
             }
-            else {
+            else if (!this.gamepad1.left_bumper){
                 Switch = 0;
             }
 
