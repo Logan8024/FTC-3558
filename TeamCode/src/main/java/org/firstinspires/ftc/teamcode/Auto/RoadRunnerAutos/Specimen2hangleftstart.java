@@ -25,7 +25,7 @@ public class Specimen2hangleftstart extends LinearOpMode {
         Arm arm = new Arm(hardwareMap);
 
         TrajectoryActionBuilder Forward = drive.actionBuilder(initialPose)
-                .strafeTo(new Vector2d(0,-57));
+                .strafeTo(new Vector2d(0,-56));
         TrajectoryActionBuilder MovetoGrab = drive.actionBuilder(new Pose2d(0,-56, Math.toRadians(90)))
                 .waitSeconds(1)
                 .strafeTo(new Vector2d(0,-58))
@@ -60,6 +60,7 @@ public class Specimen2hangleftstart extends LinearOpMode {
 
         Actions.runBlocking(
                 new SequentialAction(
+                        claw.Close(),
                         arm.HookPos(),
                         Forward.build(),
                         arm.Hook(),

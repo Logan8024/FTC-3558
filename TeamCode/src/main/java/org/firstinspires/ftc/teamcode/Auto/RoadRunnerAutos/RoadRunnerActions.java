@@ -35,7 +35,8 @@ public class RoadRunnerActions extends LinearOpMode {
             arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             arm.setPower(.5);
-            claw = HardwareMap.get(Servo.class, "ArmServo");
+            claw = HardwareMap.get(Servo.class, "ClawServo");
+            claw.setDirection(Servo.Direction.REVERSE);
 
         }
         public class Pickup implements Action {
@@ -88,8 +89,8 @@ public class RoadRunnerActions extends LinearOpMode {
                         FirstPosReached = true;
                     }
                     if (arm.getCurrentPosition() < 265 && FirstPosReached && Hooked) {
-                        claw.setPosition(1);
-                        if (claw.getPosition() > .8) {
+                        claw.setPosition(0);
+                        if (claw.getPosition() < .2) {
                             Hooked = false;
                         }
                     }
@@ -128,14 +129,14 @@ public class RoadRunnerActions extends LinearOpMode {
         private Servo claw;
 
         public Claw(HardwareMap hardwareMap) {
-            claw = hardwareMap.get(Servo.class, "ArmServo");
+            claw = hardwareMap.get(Servo.class, "ClawServo");
         }
 
         public class Open implements Action {
             boolean Open = false;
 
             public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(1);
+                claw.setPosition(0);
                 Open = false;
                 return Open;
             }
@@ -145,8 +146,8 @@ public class RoadRunnerActions extends LinearOpMode {
             boolean Close = true;
 
             public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(.62);
-                if (claw.getPosition() < .8) {
+                claw.setPosition(.82);
+                if (claw.getPosition() > .6) {
                     Close = false;
                 }
                 return Close;

@@ -24,8 +24,7 @@ public class Teleop2024V1 extends LinearOpMode{
     DcMotor FrontRight;
     DcMotor BackLeft;
     DcMotor BackRight;
-    CRServo ClawServo1;
-    CRServo ClawServo2;
+    Servo ClawServo;
     Servo ClawRotation;
     CRServo BeltServo;
     DcMotor Winch;
@@ -43,22 +42,16 @@ public class Teleop2024V1 extends LinearOpMode{
 
     //determinant variables
 
-    Boolean ClawOn = false;
     double BeltPower = 1;
     double WinchPower = .95;
     double ArmPower = .25;
-    int[] ArmPositions = new int[]{0,130,90,55};
-    int Switch = 0;
+    int[] ArmPositions = new int[]{0,130,90,55,110};
     //counts per rotation 1,527.793876
 
     //Limelight Math Variables
     double Angle;
 
 
-    public void SetClawPower (int Power) {
-        ClawServo1.setPower(-Power);
-        ClawServo2.setPower(Power);
-    }
     public void runOpMode() {
 
         telemetry.addData("Status", "Initialized");
@@ -76,8 +69,7 @@ public class Teleop2024V1 extends LinearOpMode{
 
 
         Arm = hardwareMap.get(DcMotorEx.class, "Arm");
-        ClawServo1 = hardwareMap.get(CRServo.class, "ClawServo1");
-        ClawServo2 = hardwareMap.get(CRServo.class, "ClawServo2");
+        ClawServo = hardwareMap.get(Servo.class, "ClawServo");
         ClawRotation = hardwareMap.get(Servo.class, "ClawRotation");
         BeltServo = hardwareMap.get(CRServo.class, "BeltServo");
         Limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -94,7 +86,7 @@ public class Teleop2024V1 extends LinearOpMode{
         //Limelight settings
 
         //arm positions converted from degree to counts per rotation calculated
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             ArmPositions[i] = (int)Math.round((1527.793876 / 360) * ArmPositions[i]);
         }
 
@@ -131,6 +123,7 @@ public class Teleop2024V1 extends LinearOpMode{
         WinchHook.setDirection(DcMotorSimple.Direction.REVERSE);
         Arm.setDirection(DcMotor.Direction.REVERSE);
         BeltServo.setPower(0);
+        ClawServo.setDirection(Servo.Direction.REVERSE);
 
 
 
@@ -147,8 +140,8 @@ public class Teleop2024V1 extends LinearOpMode{
                 if (pythonOutputs != null && pythonOutputs.length > 0) {
                     telemetry.addData("Python Output Length:", pythonOutputs.length);
                     telemetry.addData("Raw Angle from Python Output:", pythonOutputs[0]);
-                    Angle = pythonOutputs[0];
-                    telemetry.addData("Claw Rotation:", Angle/180);
+                    Angle = pythonOutputs[0]/150;
+                    telemetry.addData("Claw Rotation:", Angle);
                 } else {
                     Angle = 16; // Or some other default to indicate no target detected
                     telemetry.addData("Error:", "No angle data received");
@@ -156,8 +149,6 @@ public class Teleop2024V1 extends LinearOpMode{
                 telemetry.update();
 
             }
-
-
             //Joy Stick Values for Driving
 
             double drive = -gamepad1.left_stick_y;
@@ -235,41 +226,21 @@ public class Teleop2024V1 extends LinearOpMode{
 
             if (this.gamepad1.left_trigger > .5) {
 
-                if (Switch == 0 && ClawOn) {
-                    SetClawPower(0);
-                    Switch = 1;
-                    ClawOn = false;
+                ClawServo.setPosition(.72);
+                //ClawRotation.setPosition(Angle);
 
-                }
-                else if (Switch == 0 && !ClawOn){
-                    SetClawPower(1);
-                    ClawRotation.setPosition((Angle / 180));
-                    ClawOn = true;
-                    Switch = 1;
-
-
-                }
-
-            }
-            else if (this.gamepad1.left_trigger < .5) {
-                Switch = 0;
             }
             if (this.gamepad1.left_bumper) {
-                if (Switch == 0 && ClawOn) {
-                    SetClawPower(0);
-                    ClawOn = false;
-                    ClawRotation.setPosition(0);
-                    Switch = 1;
-                }
-                else if (Switch == 0 && !ClawOn) {
-                    SetClawPower(-1);
-                    ClawOn = true;
-                    Switch = 1;
-                }
+                ClawServo.setPosition(0);
             }
-            else if (!this.gamepad1.left_bumper){
-                Switch = 0;
+
+            if (this.gamepad1.dpad_up) {
+                ClawRotation.setPosition(0);
             }
+            if (this.gamepad1.dpad_left) {
+                ClawRotation.setPosition(.22);
+            }
+
 
 
             //Control for Belt Servo
@@ -319,6 +290,10 @@ public class Teleop2024V1 extends LinearOpMode{
             } else if (this.gamepad1.x) {
                 Arm.setPower(.85);
                 Arm.setTargetPosition(ArmPositions[3]);
+            }
+            else if (this.gamepad1.dpad_down) {
+                Arm.setPower(.25);
+                Arm.setTargetPosition(ArmPositions[4]);
             }
         }
     }
