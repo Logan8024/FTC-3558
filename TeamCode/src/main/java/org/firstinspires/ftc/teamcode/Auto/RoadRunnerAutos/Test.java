@@ -16,8 +16,8 @@ import org.firstinspires.ftc.teamcode.Auto.RoadRunnerAutos.RoadRunnerActions.Arm
 
 
 @Config
-@Autonomous(name = "Specimen2hangleftstart", group = "Autonomous")
-public class Specimen2hangleftstart extends LinearOpMode {
+@Autonomous(name = "TestAuto", group = "Autonomous")
+public class Test extends LinearOpMode {
     Servo claw2;
 
     @Override
@@ -30,34 +30,43 @@ public class Specimen2hangleftstart extends LinearOpMode {
 
         TrajectoryActionBuilder Forward = drive.actionBuilder(initialPose)
                 .strafeTo(new Vector2d(0,-57));
+
         TrajectoryActionBuilder wait = drive.actionBuilder(initialPose)
                 .waitSeconds(1);
-        TrajectoryActionBuilder MovetoGrab = drive.actionBuilder(new Pose2d(0,-57, Math.toRadians(90)))
+
+        TrajectoryActionBuilder MovetoGrab = Forward.endTrajectory()
                 .waitSeconds(1)
                 .strafeTo(new Vector2d(0,-58))
                 .strafeTo(new Vector2d(28,-58))
                 .turnTo(180);
-        TrajectoryActionBuilder Backup =  drive.actionBuilder(new Pose2d(28, -58, Math.toRadians(270)))
+
+        TrajectoryActionBuilder Backup =  MovetoGrab.endTrajectory()
                 .waitSeconds(1)
                 .strafeTo(new Vector2d(28, -56));
-        TrajectoryActionBuilder Grab = drive.actionBuilder(new Pose2d(28,-56, Math.toRadians(270)))
+
+        TrajectoryActionBuilder Grab = Backup.endTrajectory()
                 .waitSeconds(5)
                 .strafeTo(new Vector2d(28, -57.5));
-        TrajectoryActionBuilder Backup2 =  drive.actionBuilder(new Pose2d(28, -57.5, Math.toRadians(270)))
+
+        TrajectoryActionBuilder Backup2 =  Grab.endTrajectory()
                 .waitSeconds(2)
                 .strafeTo(new Vector2d(28, -57));
-        TrajectoryActionBuilder secondhang = drive.actionBuilder(new Pose2d(28,-57, Math.toRadians(90)))
+
+        TrajectoryActionBuilder secondhang = Backup2.endTrajectory()
                 .waitSeconds(1)
                 .strafeTo(new Vector2d(28,-58))
                 .strafeTo(new Vector2d(-12,-58))
                 .waitSeconds(1);
-        TrajectoryActionBuilder secondhangforward = drive.actionBuilder(new Pose2d(-10,-58, Math.toRadians(90)))
+
+        TrajectoryActionBuilder secondhangforward = secondhang.endTrajectory()
                 .strafeTo(new Vector2d(-12,-56.75))
                 .waitSeconds(1);
-        TrajectoryActionBuilder backup3 = drive.actionBuilder(new Pose2d(-10, -56, Math.toRadians(90)))
+
+        TrajectoryActionBuilder backup3 = secondhangforward.endTrajectory()
                 .waitSeconds(1)
                 .strafeTo(new Vector2d(-12, -59));
-        TrajectoryActionBuilder Park = drive.actionBuilder(new Pose2d(-10,-59, Math.toRadians(90)))
+        
+        TrajectoryActionBuilder Park = backup3.endTrajectory()
                 .strafeTo(new Vector2d(28, -63));
 
 

@@ -39,11 +39,22 @@ public class RoadRunnerActions extends LinearOpMode {
             claw.setDirection(Servo.Direction.REVERSE);
 
         }
+        public class  start implements Action  {
+            boolean grabbed = true;
+            public boolean run(@NonNull TelemetryPacket packet) {
+                arm.setTargetPosition(50);
+                if (arm.getCurrentPosition() > 45) {
+                    grabbed = false;
+                }
+                return grabbed;
+            }
+        }
+        public Action start(){return new Arm.start();}
         public class Pickup implements Action {
             boolean PosReached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
                 arm.setPower(.25);
-                arm.setTargetPosition(0);
+                arm.setTargetPosition(15);
                 if (arm.getCurrentPosition() < 40) {
                     PosReached = false;
                 }
@@ -58,7 +69,7 @@ public class RoadRunnerActions extends LinearOpMode {
 
             public boolean run(@NonNull TelemetryPacket packet) {
                 arm.setPower(.25);
-                arm.setTargetPosition(60);
+                arm.setTargetPosition(35);
                 if (arm.getCurrentPosition() < 90) {
                     PosReached = false;
                 }
@@ -110,13 +121,14 @@ public class RoadRunnerActions extends LinearOpMode {
         public Action Hook() {
             return new Arm.Hook();
         }
+
         public class HookPos implements Action {
             boolean posreached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
-                arm.setTargetPosition(382);
-                if (arm.getCurrentPosition() > 362 && arm.getCurrentPosition() < 402) {
+                    arm.setTargetPosition(382);
+                    if (arm.getCurrentPosition() > 362 && arm.getCurrentPosition() < 402) {
                     posreached = false;
-                }
+                    }
                 return posreached;
             }
         }
@@ -130,6 +142,8 @@ public class RoadRunnerActions extends LinearOpMode {
 
         public Claw(HardwareMap hardwareMap) {
             claw = hardwareMap.get(Servo.class, "ClawServo");
+            claw.setDirection(Servo.Direction.REVERSE);
+
         }
 
         public class Open implements Action {
@@ -145,9 +159,10 @@ public class RoadRunnerActions extends LinearOpMode {
         public class Close implements Action {
             boolean Close = true;
 
+
             public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(.82);
-                if (claw.getPosition() > .6) {
+                claw.setPosition(.72);
+                if (claw.getPosition() > .1) {
                     Close = false;
                 }
                 return Close;

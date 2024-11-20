@@ -16,8 +16,8 @@ import org.firstinspires.ftc.teamcode.Auto.RoadRunnerAutos.RoadRunnerActions.Arm
 
 
 @Config
-@Autonomous(name = "Specimen2hangleftstart", group = "Autonomous")
-public class Specimen2hangleftstart extends LinearOpMode {
+@Autonomous(name = "CatInTheHat", group = "Autonomous")
+public class OurNonCheatingHolyAuto extends LinearOpMode {
     Servo claw2;
 
     @Override
@@ -28,9 +28,11 @@ public class Specimen2hangleftstart extends LinearOpMode {
         Arm arm = new Arm(hardwareMap);
         claw2 = hardwareMap.get(Servo.class, "ClawServo");
 
-        TrajectoryActionBuilder Forward = drive.actionBuilder(initialPose)
+        TrajectoryActionBuilder oneforward = drive.actionBuilder(initialPose)
+                .strafeTo(new Vector2d(0,-65.75));
+        TrajectoryActionBuilder Forward = drive.actionBuilder(new Pose2d(0,-65.75, Math.toRadians(90)))
                 .strafeTo(new Vector2d(0,-57));
-        TrajectoryActionBuilder wait = drive.actionBuilder(initialPose)
+        TrajectoryActionBuilder wait = drive.actionBuilder(new Pose2d(0,-65.75, Math.toRadians(90)))
                 .waitSeconds(1);
         TrajectoryActionBuilder MovetoGrab = drive.actionBuilder(new Pose2d(0,-57, Math.toRadians(90)))
                 .waitSeconds(1)
@@ -49,14 +51,14 @@ public class Specimen2hangleftstart extends LinearOpMode {
         TrajectoryActionBuilder secondhang = drive.actionBuilder(new Pose2d(28,-57, Math.toRadians(90)))
                 .waitSeconds(1)
                 .strafeTo(new Vector2d(28,-58))
-                .strafeTo(new Vector2d(-12,-58))
+                .strafeTo(new Vector2d(-10,-58))
                 .waitSeconds(1);
         TrajectoryActionBuilder secondhangforward = drive.actionBuilder(new Pose2d(-10,-58, Math.toRadians(90)))
-                .strafeTo(new Vector2d(-12,-56.75))
+                .strafeTo(new Vector2d(-10,-56.5))
                 .waitSeconds(1);
         TrajectoryActionBuilder backup3 = drive.actionBuilder(new Pose2d(-10, -56, Math.toRadians(90)))
                 .waitSeconds(1)
-                .strafeTo(new Vector2d(-12, -59));
+                .strafeTo(new Vector2d(-10, -59));
         TrajectoryActionBuilder Park = drive.actionBuilder(new Pose2d(-10,-59, Math.toRadians(90)))
                 .strafeTo(new Vector2d(28, -63));
 
@@ -66,6 +68,8 @@ public class Specimen2hangleftstart extends LinearOpMode {
         waitForStart();
         Actions.runBlocking(
                 new SequentialAction(
+                        arm.start(),
+                        oneforward.build(),
                         claw.Close(),
                         wait.build(),
                         arm.HookPos(),

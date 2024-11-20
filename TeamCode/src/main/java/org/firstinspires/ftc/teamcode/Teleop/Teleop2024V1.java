@@ -45,7 +45,7 @@ public class Teleop2024V1 extends LinearOpMode{
     double BeltPower = 1;
     double WinchPower = .95;
     double ArmPower = .25;
-    int[] ArmPositions = new int[]{0,130,90,55,110};
+    int[] ArmPositions = new int[]{0,130,90,55,110,150};
     //counts per rotation 1,527.793876
 
     //Limelight Math Variables
@@ -86,7 +86,7 @@ public class Teleop2024V1 extends LinearOpMode{
         //Limelight settings
 
         //arm positions converted from degree to counts per rotation calculated
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             ArmPositions[i] = (int)Math.round((1527.793876 / 360) * ArmPositions[i]);
         }
 
@@ -124,6 +124,7 @@ public class Teleop2024V1 extends LinearOpMode{
         Arm.setDirection(DcMotor.Direction.REVERSE);
         BeltServo.setPower(0);
         ClawServo.setDirection(Servo.Direction.REVERSE);
+
 
 
 
@@ -226,14 +227,16 @@ public class Teleop2024V1 extends LinearOpMode{
 
             if (this.gamepad1.left_trigger > .5) {
 
-                ClawServo.setPosition(.72);
-                //ClawRotation.setPosition(Angle);
+                ClawServo.setPosition(.69);
+
 
             }
             if (this.gamepad1.left_bumper) {
                 ClawServo.setPosition(0);
             }
-
+            if (this.gamepad1.dpad_right) {
+                ClawRotation.setPosition(Angle);
+            }
             if (this.gamepad1.dpad_up) {
                 ClawRotation.setPosition(0);
             }
@@ -294,6 +297,10 @@ public class Teleop2024V1 extends LinearOpMode{
             else if (this.gamepad1.dpad_down) {
                 Arm.setPower(.25);
                 Arm.setTargetPosition(ArmPositions[4]);
+            }
+            else if (this.gamepad2.y) {
+                Arm.setPower(.25);
+                Arm.setTargetPosition(ArmPositions[5]);
             }
         }
     }
