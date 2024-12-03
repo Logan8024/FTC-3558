@@ -118,7 +118,7 @@ public class Teleop2024V1 extends LinearOpMode{
         FrontLeft.setDirection(DcMotor.Direction.FORWARD);
         FrontRight.setDirection(DcMotor.Direction.FORWARD);
         BackLeft.setDirection(DcMotor.Direction.FORWARD);
-        BackRight.setDirection(DcMotor.Direction.REVERSE);
+        BackRight.setDirection(DcMotor.Direction.FORWARD);
         Winch.setDirection(DcMotor.Direction.REVERSE);
         WinchHook.setDirection(DcMotorSimple.Direction.REVERSE);
         Arm.setDirection(DcMotor.Direction.REVERSE);
@@ -132,8 +132,6 @@ public class Teleop2024V1 extends LinearOpMode{
 
         while (opModeIsActive()) {
             Limelight.start();
-
-
 
             LLResult Result = Limelight.getLatestResult();
             if (Result != null) {

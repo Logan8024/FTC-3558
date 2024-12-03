@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -22,6 +23,39 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Config
 @Autonomous(name = "RoadRunnerActions")
 public class RoadRunnerActions extends LinearOpMode {
+    public static class platform_Climber {
+        CRServo Platform;
+        DcMotor Climber;
+        public  platform_Climber(HardwareMap HardwareMap) {
+            Platform = HardwareMap.get(CRServo.class, "BeltServo");
+            Climber = HardwareMap.get(DcMotor.class, "Winch");
+        }
+        public class ClimberStartPos implements Action {
+            boolean PosReached = true;
+            public boolean run(@NonNull TelemetryPacket packet) {
+                Climber.setTargetPosition(0);
+                if (Climber.getCurrentPosition() < 5) {
+                    PosReached = false;
+                }
+                return PosReached;
+            }
+        }
+        public Action ClimberStartPos() {
+            return new platform_Climber.ClimberStartPos();
+        }
+        public class PlatformStartPos implements Action {
+            boolean PosReached = true;
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (Climber.getCurrentPosition() < 5) {
+                    PosReached = false;
+                }
+                return PosReached;
+            }
+        }
+        public Action PlatformStartPos() {
+            return new platform_Climber.ClimberStartPos();
+        }
+    }
     public static class Arm {
         DcMotor arm;
         Servo claw;
