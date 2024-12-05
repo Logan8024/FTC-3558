@@ -26,34 +26,44 @@ public class RoadRunnerActions extends LinearOpMode {
     public static class platform_Climber {
         CRServo Platform;
         DcMotor Climber;
-        public  platform_Climber(HardwareMap HardwareMap) {
+        public platform_Climber(HardwareMap HardwareMap) {
             Platform = HardwareMap.get(CRServo.class, "BeltServo");
             Climber = HardwareMap.get(DcMotor.class, "Winch");
+            Climber.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            Climber.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
         public class ClimberStartPos implements Action {
             boolean PosReached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
                 Climber.setTargetPosition(0);
-                if (Climber.getCurrentPosition() < 5) {
+                if (Climber.getCurrentPosition() < 5540) {
                     PosReached = false;
                 }
                 return PosReached;
             }
         }
-        public Action ClimberStartPos() {
-            return new platform_Climber.ClimberStartPos();
-        }
-        public class PlatformStartPos implements Action {
-            boolean PosReached = true;
+        public Action Climbhigh(){return new platform_Climber.ClimberStartPos();}
+        public class Platformpowered implements Action {
+            boolean powered = true;
             public boolean run(@NonNull TelemetryPacket packet) {
-                if (Climber.getCurrentPosition() < 5) {
-                    PosReached = false;
-                }
-                return PosReached;
+                Platform.setPower(.25);
+                powered = false;
+                return powered;
             }
         }
-        public Action PlatformStartPos() {
-            return new platform_Climber.ClimberStartPos();
+        public Action Platformpowered() {
+            return new platform_Climber.Platformpowered();
+        }
+        public class Platformunpowered implements Action {
+            boolean powered = true;
+            public boolean run(@NonNull TelemetryPacket packet) {
+                Platform.setPower(0);
+                powered = false;
+                return powered;
+            }
+        }
+        public Action Platformunpowered() {
+            return new platform_Climber.Platformpowered();
         }
     }
     public static class Arm {
@@ -170,7 +180,6 @@ public class RoadRunnerActions extends LinearOpMode {
             return new Arm.HookPos();
         }
     }
-
     public static class Claw {
         private Servo claw;
 
@@ -192,8 +201,6 @@ public class RoadRunnerActions extends LinearOpMode {
 
         public class Close implements Action {
             boolean Close = true;
-
-
             public boolean run(@NonNull TelemetryPacket packet) {
                 claw.setPosition(.72);
                 if (claw.getPosition() > .1) {
@@ -203,10 +210,7 @@ public class RoadRunnerActions extends LinearOpMode {
             }
         }
 
-        public Action Open() {
-
-            return new Claw.Open();
-        }
+        public Action Open() {return new Claw.Open();}
 
         public Action Close() {
             return new Claw.Close();

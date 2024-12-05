@@ -105,6 +105,7 @@ public class Teleop2024V1 extends LinearOpMode{
         Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Arm.setPower(ArmPower);
 
+
         //Wait For Game To Start
 
         waitForStart();
@@ -149,7 +150,8 @@ public class Teleop2024V1 extends LinearOpMode{
 
             }
             //Joy Stick Values for Driving
-
+            telemetry.addData("Arm Encoder Value", Winch.getCurrentPosition());
+            telemetry.update();
             double drive = -gamepad1.left_stick_y;
             double turn = gamepad1.right_stick_x;
             double strafe = gamepad1.left_stick_x;
