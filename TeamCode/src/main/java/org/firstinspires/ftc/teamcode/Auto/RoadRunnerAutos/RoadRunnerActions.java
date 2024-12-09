@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
 
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -31,12 +32,14 @@ public class RoadRunnerActions extends LinearOpMode {
             Climber = HardwareMap.get(DcMotor.class, "Winch");
             Climber.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             Climber.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            Climber.setDirection(DcMotorSimple.Direction.REVERSE);
         }
         public class ClimberStartPos implements Action {
             boolean PosReached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
-                Climber.setTargetPosition(0);
-                if (Climber.getCurrentPosition() < 5540) {
+                Climber.setPower(1);
+                if (Climber.getCurrentPosition() > 5540) {
+                    Climber.setPower(0);
                     PosReached = false;
                 }
                 return PosReached;
@@ -46,7 +49,7 @@ public class RoadRunnerActions extends LinearOpMode {
         public class Platformpowered implements Action {
             boolean powered = true;
             public boolean run(@NonNull TelemetryPacket packet) {
-                Platform.setPower(.25);
+                Platform.setPower(1);
                 powered = false;
                 return powered;
             }
@@ -108,6 +111,35 @@ public class RoadRunnerActions extends LinearOpMode {
         public Action Pickup() {
             return new Arm.Pickup();
         }
+
+        public class B implements Action {
+            boolean PosReached = true;
+            public boolean run(@NonNull TelemetryPacket packet) {
+                arm.setPower(.25);
+                arm.setTargetPosition(130);
+                if (arm.getCurrentPosition() > 120) {
+                    PosReached = false;
+                }
+                return PosReached;
+            }
+        }
+        public Action B(){return new Arm.B();}
+
+        public class Pickupbucket implements Action {
+            boolean PosReached = true;
+            public boolean run(@NonNull TelemetryPacket packet) {
+                arm.setPower(.25);
+                arm.setTargetPosition(10);
+                if (arm.getCurrentPosition() < 25) {
+                    PosReached = false;
+                }
+                return PosReached;
+            }
+        }
+        public Action Pickupbucket() {
+            return new Arm.Pickupbucket();
+        }
+
         public class MovPickup implements Action {
             boolean PosReached = true;
 
@@ -120,6 +152,24 @@ public class RoadRunnerActions extends LinearOpMode {
                 return PosReached;
             }
         }
+
+
+        public class Bucket implements Action {
+            boolean PosReached = true;
+            public boolean run(@NonNull TelemetryPacket packet) {
+                arm.setPower(.25);
+                arm.setTargetPosition(467);
+                if (arm.getCurrentPosition() >457) {
+                    PosReached = false;
+                }
+                return PosReached;
+            }
+        }
+        public Action Bucket() {
+            return new Arm.Bucket();
+        }
+
+
 
         public Action MovPickup() {
             return new Arm.MovPickup();
@@ -182,11 +232,35 @@ public class RoadRunnerActions extends LinearOpMode {
     }
     public static class Claw {
         private Servo claw;
+        private Servo Rotation;
 
         public Claw(HardwareMap hardwareMap) {
             claw = hardwareMap.get(Servo.class, "ClawServo");
             claw.setDirection(Servo.Direction.REVERSE);
+            Rotation = hardwareMap.get(Servo.class, "ClawRotation");
+        }
+        public class Rotate implements Action {
+            boolean rotated = true;
+            public boolean run(@NonNull TelemetryPacket packet) {
+                Rotation.setPosition(.2);
+                rotated = false;
+                return rotated;
+            }
+        }
+        public class Rotate0 implements Action {
+            boolean rotated = true;
+            public boolean run(@NonNull TelemetryPacket packet) {
+                Rotation.setPosition(1);
+                rotated = false;
+                return rotated;
+            }
+        }
 
+        public Action Rotate() {
+            return new Claw.Rotate();
+        }
+        public Action Rotate0() {
+            return new Claw.Rotate0();
         }
 
         public class Open implements Action {
@@ -194,7 +268,9 @@ public class RoadRunnerActions extends LinearOpMode {
 
             public boolean run(@NonNull TelemetryPacket packet) {
                 claw.setPosition(0);
-                Open = false;
+                if (claw.getPosition() < .1) {
+                    Open = false;
+                }
                 return Open;
             }
         }
