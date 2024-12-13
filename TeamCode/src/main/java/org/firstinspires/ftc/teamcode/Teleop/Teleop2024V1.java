@@ -109,8 +109,8 @@ public class Teleop2024V1 extends LinearOpMode{
         waitForStart();
 
         //Limelight
-        Limelight.setPollRateHz(10); // This sets how often we ask Limelight for data (100 times per second)
-        Limelight.pipelineSwitch(2);
+        Limelight.setPollRateHz(10);
+        Limelight.pipelineSwitch(2); //2 should be Red and 3 Should be Blue only past me and God truly knows
         Limelight.start();
 
         //Set Default Motor Positions

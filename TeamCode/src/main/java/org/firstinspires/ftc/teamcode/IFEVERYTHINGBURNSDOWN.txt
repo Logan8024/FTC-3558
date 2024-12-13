@@ -29,6 +29,8 @@ Limelight Data Not Being Sent To RC
 1. Unplug and Replug Limelight in
 2. if this doesn't work idk
 
+
+
 Bad Battery
 1. Check switch connection
 2. Check Fuse
@@ -54,3 +56,12 @@ the servo is at its hard limits and not in the middle of it
 
 using a servo controller is as simple as spamming the buttons
 in random order until your able to press left or right and the servo moves
+
+or Call me
+Only Available 7:45 - 8:30, 9:00 - 9:15, 10:45 - 11:15, 12:45 - 1:30, 3:00 - 3:30, Maybe 3:30 - Infinity
+
+if you have any of these issues and the solutions that i have listed do not work
+may God help you or in this situation Mr Kannel
+God = Kannel
+
+
