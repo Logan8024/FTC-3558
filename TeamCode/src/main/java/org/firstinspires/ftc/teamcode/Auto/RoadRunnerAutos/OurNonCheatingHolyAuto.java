@@ -20,6 +20,10 @@ import org.firstinspires.ftc.teamcode.Auto.RoadRunnerAutos.RoadRunnerActions.Arm
 public class OurNonCheatingHolyAuto extends LinearOpMode {
     Servo claw2;
 
+    //Auto for cat in the hat is not functional
+    //due to climber update but the start code is useful in the fact that you can copy it if needed
+    // and tune it for either bucket or specimen
+
     @Override
     public void runOpMode() {
         Pose2d initialPose = new Pose2d(0, -66, Math.toRadians(90));
@@ -30,6 +34,8 @@ public class OurNonCheatingHolyAuto extends LinearOpMode {
 
         TrajectoryActionBuilder oneforward = drive.actionBuilder(initialPose)
                 .strafeTo(new Vector2d(0,-65.75));
+
+        //Dont copy past this line
         TrajectoryActionBuilder Forward = drive.actionBuilder(new Pose2d(0,-65.75, Math.toRadians(90)))
                 .strafeTo(new Vector2d(0,-57));
         TrajectoryActionBuilder wait = drive.actionBuilder(new Pose2d(0,-65.75, Math.toRadians(90)))
@@ -71,7 +77,7 @@ public class OurNonCheatingHolyAuto extends LinearOpMode {
                         arm.start(),
                         oneforward.build(),
                         claw.Close(),
-                        wait.build(),
+                        wait.build(), // dont copy past this line if need be because then it gets to actual code
                         arm.HookPos(),
                         Forward.build(),
                         arm.Hook(),

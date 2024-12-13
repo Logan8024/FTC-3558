@@ -1,0 +1,56 @@
+How to Upload Code
+1. connect to the wifi network
+2. go to android studio network tab (Wifi Symbol -->)
+3. Click connect to control hub if option is there otherwise add device with ip: 192.168.43.1:5555
+4. press the play symbol or the arrow circle to send code to robot
+
+In Android Studio wont connect to control hub
+1. reboot robot
+
+Android Studio Keeps Failing to send code
+1. Grab Wire and plug robot in to computer using the usb c cord on the control hub
+
+Gradle error
+1. Restart Android Studio
+
+Driver Station Wont Connect to Robot -_-
+On Driver Station
+1. Go to the Options or Setting whatever its called
+2. Once in setting click the first option which should be something along the lines of wifi settings or something
+3. There will prob be red text that says no wifi network if you are in the correct tab
+4. click the grey button below it
+
+You can prob just skip to here idk
+
+5. you should be in the android wifi settings now
+6. Connect to 3558-RC Password: firebots or FireBots
+
+Limelight Data Not Being Sent To RC
+1. Unplug and Replug Limelight in
+2. if this doesn't work idk
+
+Bad Battery
+1. Check switch connection
+2. Check Fuse
+3. Check connection between control hub and expansion hub
+
+Bad Battery is any of these situations
+1. robot randomly stops moving during auto
+2. robot moving unreasonably slow
+3. error warning on driver stations
+
+
+if you have any of these issues and the solutions that i have listed do not work
+may God help you or in this situation Mr Kannel
+God = Kannel
+
+SERVO CONTROLLER
+the reason a servo controller exists is because the rev servos
+do not have hard limits set for 180 degree motion like other 180
+degree servos because they are able to change to continues
+when you program the servo you set these "hard limits" and are
+able to move to them so that when you install the servo into the horns
+the servo is at its hard limits and not in the middle of it
+
+using a servo controller is as simple as spamming the buttons
+in random order until your able to press left or right and the servo moves

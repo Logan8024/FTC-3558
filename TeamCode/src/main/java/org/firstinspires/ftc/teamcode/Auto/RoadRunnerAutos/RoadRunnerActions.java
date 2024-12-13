@@ -24,6 +24,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Config
 @Autonomous(name = "RoadRunnerActions")
 public class RoadRunnerActions extends LinearOpMode {
+
+    //Climber and Platform Autonomous Commands
     public static class platform_Climber {
         CRServo Platform;
         DcMotor Climber;
@@ -34,6 +36,8 @@ public class RoadRunnerActions extends LinearOpMode {
             Climber.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             Climber.setDirection(DcMotorSimple.Direction.REVERSE);
         }
+
+        //Move Climber to Highest Position
         public class ClimberStartPos implements Action {
             boolean PosReached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
@@ -46,6 +50,22 @@ public class RoadRunnerActions extends LinearOpMode {
             }
         }
         public Action Climbhigh(){return new platform_Climber.ClimberStartPos();}
+
+        //Move Climber to Lowest Position
+        public class ClimberEndPos implements Action {
+            boolean PosReached = true;
+            public boolean run(@NonNull TelemetryPacket packet) {
+                Climber.setPower(-1);
+                if (Climber.getCurrentPosition() < 80) {
+                    Climber.setPower(0);
+                    PosReached = false;
+                }
+                return PosReached;
+            }
+        }
+        public Action ClimberEndPos(){return new platform_Climber.ClimberEndPos();}
+
+        //Power the Platform
         public class Platformpowered implements Action {
             boolean powered = true;
             public boolean run(@NonNull TelemetryPacket packet) {
@@ -57,6 +77,8 @@ public class RoadRunnerActions extends LinearOpMode {
         public Action Platformpowered() {
             return new platform_Climber.Platformpowered();
         }
+
+        //Unpower the Platform
         public class Platformunpowered implements Action {
             boolean powered = true;
             public boolean run(@NonNull TelemetryPacket packet) {
@@ -69,6 +91,8 @@ public class RoadRunnerActions extends LinearOpMode {
             return new platform_Climber.Platformpowered();
         }
     }
+
+    //Arm Autonomous Actions
     public static class Arm {
         DcMotor arm;
         Servo claw;
@@ -86,6 +110,8 @@ public class RoadRunnerActions extends LinearOpMode {
             claw.setDirection(Servo.Direction.REVERSE);
 
         }
+
+        //Position for the Start of the Autonmous moves Arm to position above the specimen hanging bar
         public class  start implements Action  {
             boolean grabbed = true;
             public boolean run(@NonNull TelemetryPacket packet) {
@@ -97,6 +123,8 @@ public class RoadRunnerActions extends LinearOpMode {
             }
         }
         public Action start(){return new Arm.start();}
+
+        //Position for picking up a specimen
         public class Pickup implements Action {
             boolean PosReached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
@@ -112,12 +140,13 @@ public class RoadRunnerActions extends LinearOpMode {
             return new Arm.Pickup();
         }
 
+        //Highest Arm Positon Used for after Scoring in the bucket to put arm all the way back
         public class B implements Action {
             boolean PosReached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
                 arm.setPower(.25);
-                arm.setTargetPosition(130);
-                if (arm.getCurrentPosition() > 120) {
+                arm.setTargetPosition(733);
+                if (arm.getCurrentPosition() > 720) {
                     PosReached = false;
                 }
                 return PosReached;
@@ -125,6 +154,7 @@ public class RoadRunnerActions extends LinearOpMode {
         }
         public Action B(){return new Arm.B();}
 
+        //Picking up samples
         public class Pickupbucket implements Action {
             boolean PosReached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
@@ -140,6 +170,7 @@ public class RoadRunnerActions extends LinearOpMode {
             return new Arm.Pickupbucket();
         }
 
+        //Slightly higher arm position for moving around before picking up a game piece
         public class MovPickup implements Action {
             boolean PosReached = true;
 
@@ -153,7 +184,7 @@ public class RoadRunnerActions extends LinearOpMode {
             }
         }
 
-
+        //Arm position for scoring in the bucket
         public class Bucket implements Action {
             boolean PosReached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
@@ -168,13 +199,11 @@ public class RoadRunnerActions extends LinearOpMode {
         public Action Bucket() {
             return new Arm.Bucket();
         }
-
-
-
         public Action MovPickup() {
             return new Arm.MovPickup();
         }
 
+        //Arm Function that hooks the specimen only call when robot is in correct position this function includes claw actions
         public class Hook implements Action {
             boolean Hooked = true;
             boolean FirstPosReached = false;
@@ -216,6 +245,7 @@ public class RoadRunnerActions extends LinearOpMode {
             return new Arm.Hook();
         }
 
+        //position of arm for hooking? or maybe when driving up to it honestly i cant remember
         public class HookPos implements Action {
             boolean posreached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
@@ -230,6 +260,8 @@ public class RoadRunnerActions extends LinearOpMode {
             return new Arm.HookPos();
         }
     }
+
+    //Claw actions, DUH
     public static class Claw {
         private Servo claw;
         private Servo Rotation;
@@ -239,14 +271,18 @@ public class RoadRunnerActions extends LinearOpMode {
             claw.setDirection(Servo.Direction.REVERSE);
             Rotation = hardwareMap.get(Servo.class, "ClawRotation");
         }
+
+        //Rotate to 90 degrees
         public class Rotate implements Action {
             boolean rotated = true;
             public boolean run(@NonNull TelemetryPacket packet) {
-                Rotation.setPosition(.2);
+                Rotation.setPosition(.3);
                 rotated = false;
                 return rotated;
             }
         }
+
+        //Rotate to 0 degrees
         public class Rotate0 implements Action {
             boolean rotated = true;
             public boolean run(@NonNull TelemetryPacket packet) {
@@ -263,6 +299,7 @@ public class RoadRunnerActions extends LinearOpMode {
             return new Claw.Rotate0();
         }
 
+        //self explanatory
         public class Open implements Action {
             boolean Open = false;
 
@@ -275,10 +312,11 @@ public class RoadRunnerActions extends LinearOpMode {
             }
         }
 
+        //self explanatory
         public class Close implements Action {
             boolean Close = true;
             public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(.72);
+                claw.setPosition(.8);
                 if (claw.getPosition() > .1) {
                     Close = false;
                 }

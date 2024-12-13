@@ -20,6 +20,8 @@ import org.firstinspires.ftc.teamcode.Auto.RoadRunnerAutos.RoadRunnerActions.Arm
 public class Specimen2hangleftstart extends LinearOpMode {
     Servo claw2;
 
+    //should be tuned idk figure out what everything is im too lazy rn same rules apply as the bucket auto code -_- jack
+
     @Override
     public void runOpMode() {
         Pose2d initialPose = new Pose2d(0, -66, Math.toRadians(90));

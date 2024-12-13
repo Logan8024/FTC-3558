@@ -45,7 +45,7 @@ public class Teleop2024V1 extends LinearOpMode{
     double BeltPower = 1;
     double WinchPower = .95;
     double ArmPower = .25;
-    int[] ArmPositions = new int[]{0,130,90,55,110,150};
+    int[] ArmPositions = new int[]{0,130,90,55,110,65};
     //counts per rotation 1,527.793876
 
     //Limelight Math Variables
@@ -82,8 +82,6 @@ public class Teleop2024V1 extends LinearOpMode{
                 RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
 
         imu.initialize(parameters);
-
-        //Limelight settings
 
         //arm positions converted from degree to counts per rotation calculated
         for (int i = 0; i < 6; i++) {
@@ -132,31 +130,30 @@ public class Teleop2024V1 extends LinearOpMode{
         // run until the end of the match (driver presses STOP)
 
         while (opModeIsActive()) {
+            //Limelight Math and Data Collection
             Limelight.start();
-
             LLResult Result = Limelight.getLatestResult();
             if (Result != null) {
                 double[] pythonOutputs = Result.getPythonOutput();
                 if (pythonOutputs != null && pythonOutputs.length > 0) {
                     telemetry.addData("Python Output Length:", pythonOutputs.length);
                     telemetry.addData("Raw Angle from Python Output:", pythonOutputs[0]);
-                    Angle = pythonOutputs[0]/150;
+                    Angle = pythonOutputs[0]/180;
                     telemetry.addData("Claw Rotation:", Angle);
                 } else {
-                    Angle = 16; // Or some other default to indicate no target detected
+                    Angle = 0; // Or some other default to indicate no target detected
                     telemetry.addData("Error:", "No angle data received");
                 }
                 telemetry.update();
 
             }
+
             //Joy Stick Values for Driving
-            telemetry.addData("Arm Encoder Value", Winch.getCurrentPosition());
-            telemetry.update();
             double drive = -gamepad1.left_stick_y;
             double turn = gamepad1.right_stick_x;
             double strafe = gamepad1.left_stick_x;
 
-            //Field Centric Controls
+            //Robot Centric Controls
             if (this.gamepad1.right_bumper) {
                 LeftPower = Range.clip(drive + turn, -1.0, 1.0) * .75;
                 RightPower = Range.clip(drive - turn, -1.0, 1.0) * .75;
@@ -176,7 +173,9 @@ public class Teleop2024V1 extends LinearOpMode{
                     BackLeft.setPower(-LeftStrafePower);
                     BackRight.setPower(RightStrafePower);
                 }
-            } else {
+            }
+            //Field Centric Control
+            else {
                 double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
                 double rotX = strafe * Math.cos(-botHeading) - drive * Math.sin(-botHeading);
@@ -198,6 +197,7 @@ public class Teleop2024V1 extends LinearOpMode{
             //Game Controls
 
             //Arm Encoder Reset
+            //half this crap is excessive encoder would prob be fine with just stop and run but just to be sure it exists
             if (this.gamepad2.a) {
                 runtime.reset();
                 Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -227,9 +227,7 @@ public class Teleop2024V1 extends LinearOpMode{
 
             if (this.gamepad1.left_trigger > .5) {
 
-                ClawServo.setPosition(.69);
-
-
+                ClawServo.setPosition(.8);
             }
             if (this.gamepad1.left_bumper) {
                 ClawServo.setPosition(0);
@@ -238,10 +236,10 @@ public class Teleop2024V1 extends LinearOpMode{
                 ClawRotation.setPosition(Angle);
             }
             if (this.gamepad1.dpad_up) {
-                ClawRotation.setPosition(0);
+                ClawRotation.setPosition(1);
             }
             if (this.gamepad1.dpad_left) {
-                ClawRotation.setPosition(.22);
+                ClawRotation.setPosition(.30);
             }
 
 
@@ -268,7 +266,7 @@ public class Teleop2024V1 extends LinearOpMode{
             }
 
             //Hook Winch
-
+            // this doesn't actually do anything anymore but ima keep it just in case jack starts having fever dreams
             if (this.gamepad2.dpad_down) {
                 WinchHook.setDirection(DcMotor.Direction.FORWARD);
                 WinchHook.setPower(WinchPower);
