@@ -31,30 +31,30 @@ public class Specimen2hangleftstart extends LinearOpMode {
         claw2 = hardwareMap.get(Servo.class, "ClawServo");
 
         TrajectoryActionBuilder Forward = drive.actionBuilder(initialPose)
-                .strafeTo(new Vector2d(0,-57));
+                .strafeTo(new Vector2d(0,-54.25));
         TrajectoryActionBuilder wait = drive.actionBuilder(initialPose)
                 .waitSeconds(1);
         TrajectoryActionBuilder MovetoGrab = drive.actionBuilder(new Pose2d(0,-57, Math.toRadians(90)))
                 .waitSeconds(1)
                 .strafeTo(new Vector2d(0,-58))
-                .strafeTo(new Vector2d(28,-58))
+                .strafeTo(new Vector2d(24,-58))
                 .turnTo(180);
         TrajectoryActionBuilder Backup =  drive.actionBuilder(new Pose2d(28, -58, Math.toRadians(270)))
                 .waitSeconds(1)
-                .strafeTo(new Vector2d(28, -56));
+                .strafeTo(new Vector2d(24, -58));
         TrajectoryActionBuilder Grab = drive.actionBuilder(new Pose2d(28,-56, Math.toRadians(270)))
                 .waitSeconds(5)
-                .strafeTo(new Vector2d(28, -57.5));
+                .strafeTo(new Vector2d(24, -61));
         TrajectoryActionBuilder Backup2 =  drive.actionBuilder(new Pose2d(28, -57.5, Math.toRadians(270)))
                 .waitSeconds(2)
-                .strafeTo(new Vector2d(28, -57));
+                .strafeTo(new Vector2d(24, -57));
         TrajectoryActionBuilder secondhang = drive.actionBuilder(new Pose2d(28,-57, Math.toRadians(90)))
                 .waitSeconds(1)
-                .strafeTo(new Vector2d(28,-58))
+                .strafeTo(new Vector2d(24,-58))
                 .strafeTo(new Vector2d(-12,-58))
                 .waitSeconds(1);
         TrajectoryActionBuilder secondhangforward = drive.actionBuilder(new Pose2d(-10,-58, Math.toRadians(90)))
-                .strafeTo(new Vector2d(-12,-56.75))
+                .strafeTo(new Vector2d(-12,-54.25))
                 .waitSeconds(1);
         TrajectoryActionBuilder backup3 = drive.actionBuilder(new Pose2d(-10, -56, Math.toRadians(90)))
                 .waitSeconds(1)

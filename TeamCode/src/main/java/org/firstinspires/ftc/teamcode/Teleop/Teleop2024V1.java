@@ -138,7 +138,7 @@ public class Teleop2024V1 extends LinearOpMode{
                 if (pythonOutputs != null && pythonOutputs.length > 0) {
                     telemetry.addData("Python Output Length:", pythonOutputs.length);
                     telemetry.addData("Raw Angle from Python Output:", pythonOutputs[0]);
-                    Angle = pythonOutputs[0]/180;
+                    Angle = (((1/40500) * (pythonOutputs[0] * pythonOutputs[0])) - (.01 * pythonOutputs[0]) + 1);
                     telemetry.addData("Claw Rotation:", Angle);
                 } else {
                     Angle = 0; // Or some other default to indicate no target detected
