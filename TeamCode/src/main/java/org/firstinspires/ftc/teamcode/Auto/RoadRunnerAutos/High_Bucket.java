@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.Auto.RoadRunnerAutos.RoadRunnerActions.pla
 public class High_Bucket extends LinearOpMode {
     @Override
     public void runOpMode() {
-        Pose2d initialPose = new Pose2d(-7.5, -66, Math.toRadians(90));
+        Pose2d initialPose = new Pose2d(-8.5, -65, Math.toRadians(90));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         Claw claw = new Claw(hardwareMap);
         Arm arm = new Arm(hardwareMap);
@@ -30,22 +30,27 @@ public class High_Bucket extends LinearOpMode {
         //1 tick is larger then you believe small adjustments like it not clipping on the hook are usually .25
 
         //Drive forward to the Bar, Hook action is called after this
+        TrajectoryActionBuilder Wait123 = drive.actionBuilder(initialPose)
+                .waitSeconds(3);
+        TrajectoryActionBuilder Wait124 = drive.actionBuilder(initialPose)
+                .waitSeconds(.5);
+
         TrajectoryActionBuilder Forward = drive.actionBuilder(initialPose)
-                .strafeTo(new Vector2d(-7.5,-54.25));
+                .strafeTo(new Vector2d(-8.5,-55.7));
 
         //Wait for claw to close, Happens at start - Jack don't even think of changing this
         TrajectoryActionBuilder Wait = drive.actionBuilder(initialPose)
                 .waitSeconds(1);
 
         //Back up from specimen and strafe over to where the sample game piece is
-        TrajectoryActionBuilder Backupafterfirsthang = drive.actionBuilder(new Pose2d(-7.5, -54.25, Math.toRadians(90)))
-                .strafeTo(new Vector2d(-7.5, -60))
-                .strafeTo(new Vector2d(-33.5, -60));
+        TrajectoryActionBuilder Backupafterfirsthang = drive.actionBuilder(new Pose2d(-7.5, -55.6, Math.toRadians(90)))
+                .strafeTo(new Vector2d(-8.5, -58))
+                .strafeTo(new Vector2d(-30.25, -58));
 
         //move forward to the game piece
-        TrajectoryActionBuilder forwardfirstgrab = drive.actionBuilder(new Pose2d(-33.5, -60, Math.toRadians(90)))
+        TrajectoryActionBuilder forwardfirstgrab = drive.actionBuilder(new Pose2d(-30.25, -60, Math.toRadians(90)))
                 .waitSeconds(1)
-                .strafeTo(new Vector2d(-33.5, -51));
+                .strafeTo(new Vector2d(-30.25, -48.5));
 
         //Wait for closing claw, yes this is necessary, no i cant implement this into the action jack, why, because runtime doesnt work in actions for some reason only god knows why
         TrajectoryActionBuilder Wait1 = drive.actionBuilder(new Pose2d(-33.5, -51, Math.toRadians(90)))
@@ -57,7 +62,7 @@ public class High_Bucket extends LinearOpMode {
 
         //Back up after game piece is grabbed
         TrajectoryActionBuilder BackupafterFirstgrab = drive.actionBuilder(new Pose2d(-33.5, -51, Math.toRadians(90)))
-                .strafeTo(new Vector2d(-33.5, -60));
+                .strafeTo(new Vector2d(-30.5, -60));
 
         //Rotate toward the bucket
         TrajectoryActionBuilder TurnAfterFirstGrab = drive.actionBuilder(new Pose2d(-33.5, -60, Math.toRadians(90)))
@@ -65,45 +70,28 @@ public class High_Bucket extends LinearOpMode {
 
         //Move forward to the bucket
         TrajectoryActionBuilder forwardtobucket = drive.actionBuilder(new Pose2d(-33.5, -60, Math.toRadians(210)))
-                .strafeTo(new Vector2d(-38, -66));
+                .strafeTo(new Vector2d(-30, -64));
 
         //Wait
-        TrajectoryActionBuilder wait4 = drive.actionBuilder(new Pose2d(-38, -66, Math.toRadians(210)))
+        TrajectoryActionBuilder wait4 = drive.actionBuilder(new Pose2d(-30, -64, Math.toRadians(210)))
                 .waitSeconds(1);
 
         //Wait
-        TrajectoryActionBuilder wait5 = drive.actionBuilder(new Pose2d(-38, -66, Math.toRadians(210)))
+        TrajectoryActionBuilder wait5 = drive.actionBuilder(new Pose2d(-30, -64, Math.toRadians(210)))
                 .waitSeconds(1);
 
-        //Shut up Jack
-        TrajectoryActionBuilder wait6 = drive.actionBuilder(new Pose2d(-38, -66, Math.toRadians(210)))
+        //Wait
+        TrajectoryActionBuilder wait6 = drive.actionBuilder(new Pose2d(-30, -64, Math.toRadians(210)))
                 .waitSeconds(1);
 
         //Backup after the bucket
         TrajectoryActionBuilder Backupafterbucket = drive.actionBuilder(new Pose2d(-38, -66, Math.toRadians(210)))
-                        .strafeTo(new Vector2d(-33.5, -60))
+                        .strafeTo(new Vector2d(-33.5, -56))
                         .turnTo(Math.toRadians(105));
 
         //Strafe to the side so its aligned with the second piece
         TrajectoryActionBuilder Strafeattheend  = drive.actionBuilder(new Pose2d(-33.5, -60, Math.toRadians(90)))
-                .strafeTo(new Vector2d(-38, -60));
-
-
-
-
-        /*don't you dare touch this jack or i will beat you up
-        don't you dare touch this jack or i will beat you up
-        don't you dare touch this jack or i will beat you up
-        don't you dare touch this jack or i will beat you up
-        don't you dare touch this jack or i will beat you up
-              |
-              |
-              |
-              |
-          -       -
-           -     -
-             ---      */
-
+                .strafeTo(new Vector2d(-38, -56));
 
 
 
@@ -111,8 +99,10 @@ public class High_Bucket extends LinearOpMode {
         waitForStart();
         Actions.runBlocking(
                 new SequentialAction(
+                        arm.Pickup(),
+                        Wait124.build(),
                         claw.Close(),
-                        Wait.build(),
+                        Wait123.build(),
                         arm.HookPos(),
                         Forward.build(),
                         arm.Hook(),
@@ -142,7 +132,7 @@ public class High_Bucket extends LinearOpMode {
                         Backupafterbucket.build(),
                         platform.ClimberEndPos(),
                         Strafeattheend.build(),
-                        arm.Pickupbucket()
+                        arm.B()
                 )
         );
 

@@ -63,6 +63,7 @@ public class RoadRunnerActions extends LinearOpMode {
                 return PosReached;
             }
         }
+
         public Action ClimberEndPos(){return new platform_Climber.ClimberEndPos();}
 
         //Power the Platform
@@ -129,7 +130,7 @@ public class RoadRunnerActions extends LinearOpMode {
             boolean PosReached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
                 arm.setPower(.25);
-                arm.setTargetPosition(15);
+                arm.setTargetPosition(37);
                 if (arm.getCurrentPosition() < 40) {
                     PosReached = false;
                 }
@@ -159,7 +160,7 @@ public class RoadRunnerActions extends LinearOpMode {
             boolean PosReached = true;
             public boolean run(@NonNull TelemetryPacket packet) {
                 arm.setPower(.25);
-                arm.setTargetPosition(10);
+                arm.setTargetPosition(20);
                 if (arm.getCurrentPosition() < 25) {
                     PosReached = false;
                 }
@@ -222,7 +223,7 @@ public class RoadRunnerActions extends LinearOpMode {
                         arm.setTargetPosition(212);
                         FirstPosReached = true;
                     }
-                    if (arm.getCurrentPosition() < 265 && FirstPosReached && Hooked) {
+                    if (arm.getCurrentPosition() < 245 && FirstPosReached && Hooked) {
                         claw.setPosition(0);
                         if (claw.getPosition() < .2) {
                             Hooked = false;
@@ -316,8 +317,8 @@ public class RoadRunnerActions extends LinearOpMode {
         public class Close implements Action {
             boolean Close = true;
             public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(.8);
-                if (claw.getPosition() > .1) {
+                claw.setPosition(.84);
+                if (claw.getPosition() > .8) {
                     Close = false;
                 }
                 return Close;

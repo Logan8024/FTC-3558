@@ -102,6 +102,8 @@ public class Teleop2024V1 extends LinearOpMode{
         Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Arm.setPower(ArmPower);
+        Winch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        Winch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         //Wait For Game To Start
