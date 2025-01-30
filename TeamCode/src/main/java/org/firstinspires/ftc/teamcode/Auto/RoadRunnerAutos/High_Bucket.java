@@ -99,8 +99,6 @@ public class High_Bucket extends LinearOpMode {
         waitForStart();
         Actions.runBlocking(
                 new SequentialAction(
-                        arm.Pickup(),
-                        Wait124.build(),
                         claw.Close(),
                         Wait123.build(),
                         arm.HookPos(),
