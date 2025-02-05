@@ -19,29 +19,26 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class Teleop2024V1 extends LinearOpMode{
 
     //Motors
-
     DcMotor FrontLeft;
     DcMotor FrontRight;
     DcMotor BackLeft;
     DcMotor BackRight;
-    Servo ClawServo;
-    Servo ClawRotation;
-    CRServo BeltServo;
     DcMotor Winch;
     DcMotor WinchHook;
     DcMotor Arm;
+    Servo ClawServo;
+    Servo ClawRotation;
+    CRServo BeltServo;
+
 
     //Data
-
     IMU imu;
     Limelight3A Limelight;
 
     //Time
-
     ElapsedTime	 runtime = new ElapsedTime();
 
     //determinant variables
-
     double BeltPower = 1;
     double WinchPower = .95;
     double ArmPower = .25;
@@ -134,22 +131,6 @@ public class Teleop2024V1 extends LinearOpMode{
         while (opModeIsActive()) {
             //Limelight Math and Data Collection
             Limelight.start();
-            LLResult Result = Limelight.getLatestResult();
-            if (Result != null) {
-                double[] pythonOutputs = Result.getPythonOutput();
-                if (pythonOutputs != null && pythonOutputs.length > 0) {
-                    telemetry.addData("Python Output Length:", pythonOutputs.length);
-                    telemetry.addData("Raw Angle from Python Output:", pythonOutputs[0]);
-                    Angle = (((1/40500) * (pythonOutputs[0] * pythonOutputs[0])) - (.01 * pythonOutputs[0]) + 1);
-                    telemetry.addData("Claw Rotation:", Angle);
-                } else {
-                    Angle = 0; // Or some other default to indicate no target detected
-                    telemetry.addData("Error:", "No angle data received");
-                }
-                telemetry.update();
-
-            }
-
             //Joy Stick Values for Driving
             double drive = -gamepad1.left_stick_y;
             double turn = gamepad1.right_stick_x;

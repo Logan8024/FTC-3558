@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.RoadRunner;
+package org.firstinspires.ftc.teamcode.RoadRunnerConfig;
 
 import androidx.annotation.NonNull;
 
@@ -34,17 +34,16 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.RoadRunner.messages.DriveCommandMessage;
-import org.firstinspires.ftc.teamcode.RoadRunner.messages.MecanumCommandMessage;
-import org.firstinspires.ftc.teamcode.RoadRunner.messages.MecanumLocalizerInputsMessage;
-import org.firstinspires.ftc.teamcode.RoadRunner.messages.PoseMessage;
+import org.firstinspires.ftc.teamcode.RoadRunnerConfig.messages.DriveCommandMessage;
+import org.firstinspires.ftc.teamcode.RoadRunnerConfig.messages.MecanumCommandMessage;
+import org.firstinspires.ftc.teamcode.RoadRunnerConfig.messages.MecanumLocalizerInputsMessage;
+import org.firstinspires.ftc.teamcode.RoadRunnerConfig.messages.PoseMessage;
 
 import java.lang.Math;
 import java.util.Arrays;
